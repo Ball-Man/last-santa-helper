@@ -1,1 +1,2 @@
 desper>1,<2
+pyglet-desper<1
