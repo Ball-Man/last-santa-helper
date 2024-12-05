@@ -6,7 +6,7 @@ from pyglet.window import Window
 from pyglet.sprite import Sprite
 from pyglet.gl import glClearColor
 
-from .constants import BG_COLOR
+from . import constants
 
 # Setup main loop and window
 interval = 1 / 60
@@ -42,7 +42,7 @@ def world_transformer(handle, world: desper.World):
 
 
 def main():
-    glClearColor(*BG_COLOR)
+    glClearColor(*(constants.BG_COLOR / 255))
 
     pdesper.resource_populator(desper.resource_map, trim_extensions=True)
 

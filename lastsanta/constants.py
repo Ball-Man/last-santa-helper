@@ -1,3 +1,10 @@
 import pyglet.math as pmath
 
-BG_COLOR = pmath.Vec4(16.5, 16.2, 41.7, 255.) / 255
+VIEW_W = 1920
+VIEW_H = 1080
+
+BG_COLOR = pmath.Vec4(16, 16, 42, 255)
+FG_COLOR = pmath.Vec4(255, 200, 0, 255)
+
+HORIZONTAL_MAIN_SEPARATOR_Y = VIEW_H - 240.
+HORIZONTAL_MAIN_SEPARATOR_WIDTH = 10.
