@@ -1,13 +1,15 @@
 import desper
 import pyglet_desper as pdesper
 import pyglet
+import pyglet.math as pmath
 from pyglet.window import Window
 from pyglet.sprite import Sprite
 
 # Setup main loop and window
-loop = pdesper.Loop()
+interval = 1 / 60
+loop = pdesper.Loop(interval)
 desper.default_loop = loop
-window = Window()
+window = Window(960, 540)
 loop.connect_window_events(window, 'on_draw', 'on_mouse_press')
 
 
@@ -28,7 +30,9 @@ class CameraProcessor(desper.Processor):
 def world_transformer(handle, world: desper.World):
     world.add_processor(CameraProcessor())
 
-    world.create_entity(pdesper.Camera(pdesper.retrieve_batch(world)))
+    world.create_entity(
+        pdesper.Camera(pdesper.retrieve_batch(world),
+                       projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
 
     world.create_entity(Sprite(desper.resource_map['image/test'],
                                batch=pdesper.retrieve_batch(world)))
