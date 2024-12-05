@@ -4,6 +4,7 @@ import pyglet
 import pyglet.math as pmath
 from pyglet.window import Window
 from pyglet.sprite import Sprite
+from pyglet.shapes import Line
 from pyglet.gl import glClearColor
 
 from . import constants
@@ -31,14 +32,22 @@ class CameraProcessor(desper.Processor):
 
 
 def world_transformer(handle, world: desper.World):
-    world.add_processor(CameraProcessor())
+    main_batch = pdesper.retrieve_batch(world)
 
+    # Rendering
+    world.add_processor(CameraProcessor())
     world.create_entity(
-        pdesper.Camera(pdesper.retrieve_batch(world),
+        pdesper.Camera(main_batch,
                        projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
 
+    # Layout
+    world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
+                             constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
+                             batch=main_batch, color=constants.FG_COLOR,
+                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH))
+
     world.create_entity(Sprite(desper.resource_map['image/test'],
-                               batch=pdesper.retrieve_batch(world)))
+                               batch=main_batch))
 
 
 def main():
