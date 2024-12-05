@@ -45,6 +45,11 @@ def world_transformer(handle, world: desper.World):
                              constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                              batch=main_batch, color=constants.FG_COLOR,
                              width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH))
+    world.create_entity(Line(constants.VERTICAL_MAIN_SEPARATOR_X, 0,
+                             constants.VERTICAL_MAIN_SEPARATOR_X,
+                             constants.HORIZONTAL_MAIN_SEPARATOR_Y,
+                             batch=main_batch, color=constants.FG_COLOR,
+                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH))
 
     world.create_entity(Sprite(desper.resource_map['image/test'],
                                batch=main_batch))
