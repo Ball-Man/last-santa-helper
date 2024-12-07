@@ -9,13 +9,15 @@ from pyglet.gl import glClearColor
 
 from . import constants
 from . import graphics
+from . import physics
 
 # Setup main loop and window
 interval = 1 / 60
 loop = pdesper.Loop(interval)
 desper.default_loop = loop
 window = Window(960, 540)
-loop.connect_window_events(window, 'on_draw', 'on_mouse_press', 'on_resize')
+loop.connect_window_events(window, 'on_draw', 'on_mouse_press', 'on_resize',
+                           'on_mouse_motion')
 
 
 @desper.event_handler('on_draw')
@@ -53,8 +55,14 @@ def world_transformer(handle, world: desper.World):
                              batch=main_batch, color=constants.FG_COLOR,
                              width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH))
 
-    world.create_entity(Sprite(desper.resource_map['image/test'],
-                               batch=main_batch))
+    world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'],
+                               batch=main_batch),
+                        desper.Transform2D((100., 100.)),
+                        pdesper.SpriteSync(),
+                        physics.BBox())
+
+    if __debug__:
+        world.create_entity(physics.PointCheckDebug())
 
 
 def main():
