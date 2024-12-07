@@ -58,6 +58,23 @@ def point_collision(point: tuple[SupportsFloat, SupportsFloat],
             and y > rect_start.y and y < rect_end.y)
 
 
+def axis_collision(axis_pos: SupportsFloat, index: int,
+                   collision_controller: desper.Controller) -> bool:
+    """Check if axis collides with entity.
+
+    use ``index == 0`` for a vertical axis. ``index == 1`` for a
+    horizontal axis.
+    """
+    coll_rectangle: CollisionRectangle = collision_controller.get_component(CollisionRectangle)
+    transform: desper.Transform2D = collision_controller.get_component(desper.Transform2D)
+
+    rect_start = transform.position - coll_rectangle.offset
+    rect_end = rect_start + coll_rectangle.size
+    rect = (*rect_start, *rect_end)
+
+    return rect[index] < axis_pos < rect[2 + index]
+
+
 @desper.event_handler('on_add')
 class BBox(desper.Controller):
     """Generate a collision rectangle based on Sprite."""
