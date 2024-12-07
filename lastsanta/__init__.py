@@ -8,13 +8,14 @@ from pyglet.shapes import Line
 from pyglet.gl import glClearColor
 
 from . import constants
+from . import graphics
 
 # Setup main loop and window
 interval = 1 / 60
 loop = pdesper.Loop(interval)
 desper.default_loop = loop
 window = Window(960, 540)
-loop.connect_window_events(window, 'on_draw', 'on_mouse_press')
+loop.connect_window_events(window, 'on_draw', 'on_mouse_press', 'on_resize')
 
 
 @desper.event_handler('on_draw')
@@ -37,6 +38,7 @@ def world_transformer(handle, world: desper.World):
     # Rendering
     world.add_processor(CameraProcessor())
     world.create_entity(
+        graphics.BlackBarsViewportHandler(constants.VIEW_W, constants.VIEW_H),
         pdesper.Camera(main_batch,
                        projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
 
