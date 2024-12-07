@@ -30,10 +30,11 @@ class MouseToGameSpace(desper.Controller):
                                    _point_to_gamespace(x, y, self.window.viewport,
                                                        (constants.VIEW_W, constants.VIEW_H)))
 
-    def on_mouse_press(self, x, y):
+    def on_mouse_press(self, x, y, buttons, mod):
         return self.world.dispatch('on_mouse_game_press',
                                    _point_to_gamespace(x, y, self.window.viewport,
-                                                       (constants.VIEW_W, constants.VIEW_H)))
+                                                       (constants.VIEW_W, constants.VIEW_H)),
+                                   buttons, mod)
 
 
 @dataclass
