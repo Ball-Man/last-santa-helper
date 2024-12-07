@@ -37,6 +37,9 @@ class CameraProcessor(desper.Processor):
 def world_transformer(handle, world: desper.World):
     main_batch = pdesper.retrieve_batch(world)
 
+    # General control
+    world.create_entity(physics.MouseToGameSpace())
+
     # Rendering
     world.add_processor(CameraProcessor())
     world.create_entity(

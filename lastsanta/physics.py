@@ -4,10 +4,36 @@ from typing import SupportsFloat
 
 import desper
 import pyglet
+from pyglet.math import Vec2
 from pyglet.sprite import Sprite
 from pyglet.window import Window
 
 from . import constants
+
+
+def _point_to_gamespace(x, y, viewport, gameport) -> Vec2:
+    """Transform point from window space to game space."""
+    return ((x - viewport[0]) * (gameport[0] / viewport[2]),
+            (y - viewport[1]) * (gameport[1] / viewport[3]))
+
+
+@desper.event_handler('on_mouse_press')
+@desper.event_handler('on_mouse_motion')
+class MouseToGameSpace(desper.Controller):
+    """Map mouse events from window space to game space."""
+
+    def __init__(self):
+        self.window: Window = next(iter(pyglet.app.windows))
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        return self.world.dispatch('on_mouse_game_motion',
+                                   _point_to_gamespace(x, y, self.window.viewport,
+                                                       (constants.VIEW_W, constants.VIEW_H)))
+
+    def on_mouse_press(self, x, y):
+        return self.world.dispatch('on_mouse_game_press',
+                                   _point_to_gamespace(x, y, self.window.viewport,
+                                                       (constants.VIEW_W, constants.VIEW_H)))
 
 
 @dataclass
@@ -45,7 +71,7 @@ class BBox(desper.Controller):
                                                self.sprite.image.anchor_x)))
 
 
-@desper.event_handler('on_mouse_motion')
+@desper.event_handler('on_mouse_game_motion')
 class PointCheckDebug(desper.Controller):
     """Debug: find and log all objects found."""
 
@@ -53,15 +79,10 @@ class PointCheckDebug(desper.Controller):
         self.window: Window = next(iter(pyglet.app.windows))
         self.game_ratio = constants.VIEW_W / constants.VIEW_H
 
-    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
-        game_space_point = ((x - self.window.viewport[0])
-                            * (constants.VIEW_W / self.window.viewport[2]),
-                            (y - self.window.viewport[1] * self.game_ratio)
-                            * (constants.VIEW_H / self.window.viewport[3]))
-
+    def on_mouse_game_motion(self, mouse_position):
         collided = False
         for entity, _ in self.world.get(CollisionRectangle):
-            if point_collision(game_space_point, desper.controller(entity, self.world)):
+            if point_collision(mouse_position, desper.controller(entity, self.world)):
                 print(entity)
                 collided |= True
 
