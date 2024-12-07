@@ -88,6 +88,19 @@ class BBox(desper.Controller):
                                                self.sprite.image.anchor_x)))
 
 
+class Velocity(Vec2):
+    """Velocity component."""
+
+
+class VelocityProcessor(desper.Processor):
+    """Update ``Transform2D`` components using :class:`Velocity`."""
+
+    def process(self, dt):
+        for entity, velocity in self.world.get(Velocity):
+            transform = self.world.get_component(entity, desper.Transform2D)
+            transform.position += velocity * dt
+
+
 @desper.event_handler('on_mouse_game_motion')
 class PointCheckDebug(desper.Controller):
     """Debug: find and log all objects found."""

@@ -47,6 +47,9 @@ def world_transformer(handle, world: desper.World):
         pdesper.Camera(main_batch,
                        projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
 
+    # Physics
+    world.add_processor(physics.VelocityProcessor())
+
     # Layout
     world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                              constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
