@@ -10,6 +10,7 @@ from pyglet.gl import glClearColor
 from . import constants
 from . import graphics
 from . import physics
+from . import logic
 
 # Setup main loop and window
 interval = 1 / 60
@@ -65,11 +66,12 @@ def world_transformer(handle, world: desper.World):
                         physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
 
     world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
-                               batch=main_batch),
+                               batch=main_batch, group=pyglet.graphics.Group()),
                         desper.Transform2D((1500., 500.)),
                         pdesper.SpriteSync(),
                         physics.BBox(),
-                        physics.Velocity(-300, -300))
+                        physics.Velocity(-300, -300),
+                        logic.Item())
 
     # Add borders to the whole view
     world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero
