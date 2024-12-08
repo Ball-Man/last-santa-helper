@@ -17,21 +17,27 @@ def _point_to_gamespace(x, y, viewport, gameport) -> Vec2:
             (y - viewport[1]) * (gameport[1] / viewport[3]))
 
 
-@desper.event_handler('on_mouse_press')
-@desper.event_handler('on_mouse_motion')
+@desper.event_handler('on_mouse_press', 'on_mouse_release')
+@desper.event_handler('on_mouse_motion', on_mouse_drag='on_mouse_motion')
 class MouseToGameSpace(desper.Controller):
     """Map mouse events from window space to game space."""
 
     def __init__(self):
         self.window: Window = next(iter(pyglet.app.windows))
 
-    def on_mouse_motion(self, x, y, dx, dy):
+    def on_mouse_motion(self, x, y, dx, dy, *args):
         return self.world.dispatch('on_mouse_game_motion',
                                    _point_to_gamespace(x, y, self.window.viewport,
                                                        (constants.VIEW_W, constants.VIEW_H)))
 
     def on_mouse_press(self, x, y, buttons, mod):
         return self.world.dispatch('on_mouse_game_press',
+                                   _point_to_gamespace(x, y, self.window.viewport,
+                                                       (constants.VIEW_W, constants.VIEW_H)),
+                                   buttons, mod)
+
+    def on_mouse_release(self, x, y, buttons, mod):
+        return self.world.dispatch('on_mouse_game_release',
                                    _point_to_gamespace(x, y, self.window.viewport,
                                                        (constants.VIEW_W, constants.VIEW_H)),
                                    buttons, mod)
