@@ -11,7 +11,7 @@ class Item:
     """Represents an in game item."""
 
 
-@desper.event_handler('on_mouse_game_press', 'on_mouse_game_motion')
+@desper.event_handler('on_mouse_game_press', 'on_mouse_game_motion', 'on_mouse_game_release')
 class ItemDragManager(desper.Controller):
     """When clicked, drag items."""
     dragged: desper.Controller | None = None
@@ -21,6 +21,11 @@ class ItemDragManager(desper.Controller):
         """Event: handle mouse."""
         if pyglet.window.mouse.LEFT & buttons:
             self.begin_drag(point)
+
+    def on_mouse_game_release(self, point: Vec2, buttons: int, mod):
+        """Event: handle mouse."""
+        if pyglet.window.mouse.LEFT & buttons:
+            self.end_drag()
 
     def on_mouse_game_motion(self, mouse_position: Vec2):
         """If something is being dragged, drag it."""
@@ -50,3 +55,8 @@ class ItemDragManager(desper.Controller):
         self.dragged = top_item
         self.offset = point - top_item.get_component(desper.Transform2D).position
         top_item.remove_component(physics.Velocity)
+
+    def end_drag(self):
+        """If something is being dragged, release it."""
+        self.dragged = None
+        self.offset = Vec2()
