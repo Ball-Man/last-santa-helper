@@ -39,6 +39,7 @@ def world_transformer(handle, world: desper.World):
     main_batch = pdesper.retrieve_batch(world)
 
     # General control
+    world.add_processor(logic.ItemDragProcessor())
     world.create_entity(physics.MouseToGameSpace())
 
     # Rendering
