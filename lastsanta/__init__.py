@@ -48,24 +48,33 @@ def world_transformer(handle, world: desper.World):
                        projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
 
     # Physics
+    world.add_processor(physics.RectangleToAxisProcessor())
     world.add_processor(physics.VelocityProcessor())
 
     # Layout
     world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                              constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                              batch=main_batch, color=constants.FG_COLOR,
-                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH))
+                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
+                        physics.CollisionAxes(constants.HORIZONTAL_MAIN_SEPARATOR_Y, 1))
     world.create_entity(Line(constants.VERTICAL_MAIN_SEPARATOR_X, 0,
                              constants.VERTICAL_MAIN_SEPARATOR_X,
                              constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                              batch=main_batch, color=constants.FG_COLOR,
-                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH))
+                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
+                        physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
 
-    world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'],
+    world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
                                batch=main_batch),
-                        desper.Transform2D((100., 100.)),
+                        desper.Transform2D((1500., 500.)),
                         pdesper.SpriteSync(),
-                        physics.BBox())
+                        physics.BBox(),
+                        physics.Velocity(-300, -300))
+
+    # Add borders to the whole view
+    world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero
+    world.create_entity(physics.CollisionAxes(0., 0))                       # Vertical zero
+    world.create_entity(physics.CollisionAxes(constants.VIEW_W, 0))         # Vertical right
 
     if __debug__:
         world.create_entity(physics.PointCheckDebug())
