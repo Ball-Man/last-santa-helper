@@ -13,8 +13,8 @@ from . import constants
 
 def _point_to_gamespace(x, y, viewport, gameport) -> Vec2:
     """Transform point from window space to game space."""
-    return ((x - viewport[0]) * (gameport[0] / viewport[2]),
-            (y - viewport[1]) * (gameport[1] / viewport[3]))
+    return Vec2((x - viewport[0]) * (gameport[0] / viewport[2]),
+                (y - viewport[1]) * (gameport[1] / viewport[3]))
 
 
 @desper.event_handler('on_mouse_press', 'on_mouse_release')
