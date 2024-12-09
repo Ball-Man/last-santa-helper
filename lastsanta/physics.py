@@ -95,6 +95,23 @@ def axis_collision(axis_pos: SupportsFloat, index: int,
     return axis_to_rectangle(axis_pos, index, coll_rectangle, transform.position)
 
 
+def rectangle_collision(collision_controller1: desper.Controller,
+                        collision_controller2: desper.Controller) -> bool:
+    """Check if two entities (their bbox) collide."""
+    transform1 = collision_controller1.get_component(desper.Transform2D)
+    rect1_coll = collision_controller1.get_component(CollisionRectangle)
+    transform2 = collision_controller2.get_component(desper.Transform2D)
+    rect2_coll = collision_controller2.get_component(CollisionRectangle)
+
+    rect1_start = transform1.position - rect1_coll.offset
+    rect2_start = transform2.position - rect2_coll.offset
+
+    return (rect1_start.x < rect2_start.x + rect2_coll.size[0]
+            and rect1_start.x + rect1_coll.size[0] > rect2_start.x
+            and rect1_start.y < rect2_start.y + rect2_coll.size[1]
+            and rect1_start.y + rect1_coll.size[1] > rect2_start.y)
+
+
 @desper.event_handler('on_add')
 class BBox(desper.Controller):
     """Generate a collision rectangle based on Sprite."""
