@@ -69,6 +69,19 @@ def point_collision(point: tuple[SupportsFloat, SupportsFloat],
             and y > rect_start.y and y < rect_end.y)
 
 
+def axis_to_rectangle(axis_pos: SupportsFloat, index: int, coll_rectangle: CollisionRectangle,
+                      position: tuple[SupportsFloat, SupportsFloat]) -> bool:
+    """Explicitly check if axis collides with rectangle, given position.
+
+    See :func:`axis_collision`.
+    """
+    rect_start = (position[0] - coll_rectangle.offset[0], position[1] - coll_rectangle.offset[1])
+    rect_end = (rect_start[0] + coll_rectangle.size[0], rect_start[1] + coll_rectangle.size[1])
+    rect = (rect_start[0], rect_start[1], rect_end[0], rect_end[1])
+
+    return rect[index] < axis_pos < rect[2 + index]
+
+
 def axis_collision(axis_pos: SupportsFloat, index: int,
                    collision_controller: desper.Controller) -> bool:
     """Check if axis collides with entity.
@@ -79,11 +92,7 @@ def axis_collision(axis_pos: SupportsFloat, index: int,
     coll_rectangle: CollisionRectangle = collision_controller.get_component(CollisionRectangle)
     transform: desper.Transform2D = collision_controller.get_component(desper.Transform2D)
 
-    rect_start = transform.position - coll_rectangle.offset
-    rect_end = rect_start + coll_rectangle.size
-    rect = (*rect_start, *rect_end)
-
-    return rect[index] < axis_pos < rect[2 + index]
+    return axis_to_rectangle(axis_pos, index, coll_rectangle, transform.position)
 
 
 @desper.event_handler('on_add')
@@ -134,7 +143,8 @@ class RectangleToAxisProcessor(desper.Processor):
         axis_entities = self.world.get(CollisionAxes)
 
         for dynamic_entity, velocity in self.world.get(Velocity):
-            if not self.world.has_component(dynamic_entity, CollisionRectangle):
+            coll_rectangle = self.world.get_component(dynamic_entity, CollisionRectangle)
+            if coll_rectangle is None:
                 continue
             norm_velocity = velocity.normalize()
 
@@ -142,7 +152,7 @@ class RectangleToAxisProcessor(desper.Processor):
             reflection = Vec2()
             for _, axes in axis_entities:
                 reflection += self._resolve(
-                    dt, dynamic_entity, self.world.get_component(dynamic_entity,
+                    dt, coll_rectangle, self.world.get_component(dynamic_entity,
                                                                  desper.Transform2D),
                     velocity, norm_velocity, axes)
 
@@ -153,24 +163,26 @@ class RectangleToAxisProcessor(desper.Processor):
             if reflection.y > 0.1:
                 velocity.y = -velocity.y
 
-    def _resolve(self, dt: float, dynamic_entity: int, dynamic_transform: desper.Transform2D,
+    def _resolve(self, dt: float, coll_rectangle: CollisionRectangle,
+                 dynamic_transform: desper.Transform2D,
                  dynamic_velocity: Velocity, norm_velocity: Velocity, axes: CollisionAxes):
         """Apply velocity and resolve collision with axes."""
-        old_pos = dynamic_transform.position
-        dynamic_transform.position += dynamic_velocity * dt
+        position = dynamic_transform.position
+        position = position + dynamic_velocity * dt
         collided = False
 
         # Adjust collision
-        while axis_collision(axes.pos, axes.index, desper.controller(dynamic_entity, self.world)):
+        while axis_to_rectangle(axes.pos, axes.index, coll_rectangle, position):
             collided = True
-            dynamic_transform.position -= norm_velocity
+            position = position - norm_velocity
 
         # If a collision happened, return a vector accordingly
         reflection_axis = [0, 0]
         reflection_axis[axes.index] = 1 * collided
 
         # If no collision, reset position
-        dynamic_transform.position = old_pos
+        if collided:
+            dynamic_transform.position = position
 
         return Vec2(*reflection_axis)
 
