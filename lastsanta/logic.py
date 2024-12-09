@@ -7,6 +7,8 @@ from pyglet.sprite import Sprite
 from . import physics
 from . import constants
 
+MAX_MOUSE_INTERTIA_SPEED = 1000
+
 
 class Item:
     """Represents an in game item."""
@@ -67,7 +69,8 @@ class ItemDragProcessor(desper.Processor):
 
         # Apply a
         if self.last_delta.mag > 0.5:
-            self.dragged.add_component(physics.Velocity(*(self.last_delta) / self.last_dt))
+            self.dragged.add_component(physics.Velocity(*(self.last_delta / self.last_dt)
+                                                        .limit(MAX_MOUSE_INTERTIA_SPEED)))
 
         self.dragged = None
         self.offset = Vec2()
