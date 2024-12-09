@@ -183,7 +183,7 @@ class PointCheckDebug(desper.Controller):
         self.window: Window = next(iter(pyglet.app.windows))
         self.game_ratio = constants.VIEW_W / constants.VIEW_H
 
-    def on_mouse_game_motion(self, mouse_position):
+    def on_mouse_game_motion(self, mouse_position, delta):
         collided = False
         for entity, _ in self.world.get(CollisionRectangle):
             if point_collision(mouse_position, desper.controller(entity, self.world)):
