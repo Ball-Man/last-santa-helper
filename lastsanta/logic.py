@@ -35,6 +35,17 @@ def itemchain_contains(start_entity: int, target: int, world: desper.World) -> i
     return False
 
 
+def find_root(start_entity: int, world: desper.World) -> int:
+    """Find root entity of a chain."""
+    last_entity = start_entity
+    current_entity = start_entity
+    while current_entity is not None:
+        last_entity = current_entity
+        current_entity = world.get_component(current_entity, Item).hooked
+
+    return last_entity
+
+
 @desper.event_handler('on_mouse_game_press', 'on_mouse_game_motion', 'on_mouse_game_release')
 class ItemDragProcessor(desper.Processor):
     """When clicked, drag items."""
@@ -46,7 +57,11 @@ class ItemDragProcessor(desper.Processor):
 
     def on_mouse_game_press(self, point: Vec2, buttons: int, mod):
         """Event: handle mouse."""
+        # On left button, grab entire composite objects
         if pyglet.window.mouse.LEFT & buttons:
+            self.begin_drag_chain(point)
+        # On right button, grab single part
+        elif pyglet.window.mouse.RIGHT & buttons:
             self.begin_drag(point)
 
     def on_mouse_game_release(self, point: Vec2, buttons: int, mod):
@@ -63,8 +78,8 @@ class ItemDragProcessor(desper.Processor):
         transform.position = desper.math.Vec2(*(mouse_position - self.offset))
         self.last_delta = delta
 
-    def begin_drag(self, point: Vec2):
-        """On mouse press, find intersecting items and grab one."""
+    def find_drag(self, point: Vec2) -> desper.Controller | None:
+        """Given a point, find an item to grab."""
         # TODO: pixel perfect check
         # Find top item
         top_item = None
@@ -76,13 +91,40 @@ class ItemDragProcessor(desper.Processor):
                 top_item = item_controller
                 top_order = sprite.group.order
 
-        if top_item is None:            # Nothing to drag
+        return top_item
+
+    def begin_drag(self, point: Vec2):
+        """On mouse press, find intersecting items and grab one."""
+        top_item = self.find_drag(point)
+        if top_item is None:            # Nothing to grab
             return
 
         # Save current item and mouse offset for dragging
         self.dragged = top_item
         self.offset = point - top_item.get_component(desper.Transform2D).position
         top_item.remove_component(physics.Velocity)
+
+        top_item.get_component(Item).hooked = None          # Unhook
+
+        # Bring on top globally
+        top_item.get_component(Sprite).group = pyglet.graphics.Group(self.get_next_top_value())
+
+    def begin_drag_chain(self, point: Vec2):
+        """On mouse press, find intersecting items and grab one.
+
+        If the intersecting object is part of a chain, the entire
+        composite object will be moved (the root is grabbed).
+        """
+        top_item = self.find_drag(point)
+        if top_item is None:            # Nothing to grab
+            return
+
+        # Save current item and mouse offset for dragging
+        top_item = desper.controller(find_root(top_item.entity, top_item.world), top_item.world)
+        self.dragged = top_item
+        self.offset = point - top_item.get_component(desper.Transform2D).position
+        top_item.remove_component(physics.Velocity)
+
         # Bring on top globally
         top_item.get_component(Sprite).group = pyglet.graphics.Group(self.get_next_top_value())
 
