@@ -1,5 +1,5 @@
 """Main game logic and user interactions."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import desper
 import pyglet
@@ -17,6 +17,7 @@ class Item:
     """Represents an in game item."""
     base: bool = False
     hooked: int | None = None
+    hook_offset: Vec2 = field(default_factory=Vec2)
 
     def contains(self, world: desper.World, ):
         """Check if chain of items contains the given id."""
@@ -98,6 +99,8 @@ class ItemDragProcessor(desper.Processor):
 
         # Handle item hooking
         hooked = False
+        dragged_position = self.dragged.get_component(desper.Transform2D).position
+        dragged_item = self.dragged.get_component(Item)
         for entity, _ in self.world.get(physics.CollisionRectangle):
             if entity == self.dragged.entity:       # Don't self collide
                 continue
@@ -105,7 +108,10 @@ class ItemDragProcessor(desper.Processor):
             # Hook things that overlap, prevent hooking into a loop
             if (physics.rectangle_collision(self.dragged, desper.controller(entity, self.world))
                     and not itemchain_contains(entity, self.dragged.entity, self.world)):
-                self.dragged.get_component(Item).hooked = entity
+                dragged_item.hooked = entity
+                dragged_item.hook_offset = (self.world.get_component(entity,
+                                                                     desper.Transform2D).position
+                                            - dragged_position)
                 hooked = True
 
         # Apply an eventual inertia from the mouse, if not hooked
@@ -143,7 +149,7 @@ class HookedProcessor(desper.Processor):
             # Adjust position according to parent
             transform = self.world.get_component(entity, desper.Transform2D)
             parent_transform = self.world.get_component(item.hooked, desper.Transform2D)
-            transform.position = parent_transform.position
+            transform.position = parent_transform.position - item.hook_offset
 
             # Check ordering
             sprite = self.world.get_component(entity, Sprite)
