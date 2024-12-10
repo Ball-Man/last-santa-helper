@@ -52,6 +52,7 @@ def world_transformer(handle, world: desper.World):
     # Physics
     world.add_processor(physics.RectangleToAxisProcessor())
     world.add_processor(physics.VelocityProcessor())
+    world.add_processor(logic.HookedProcessor())
 
     # Layout
     world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,

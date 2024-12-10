@@ -1,4 +1,6 @@
 """Main game logic and user interactions."""
+from dataclasses import dataclass
+
 import desper
 import pyglet
 from pyglet.math import Vec2, clamp
@@ -10,8 +12,26 @@ from . import constants
 MAX_MOUSE_INTERTIA_SPEED = 1000
 
 
+@dataclass
 class Item:
     """Represents an in game item."""
+    base: bool = False
+    hooked: int | None = None
+
+    def contains(self, world: desper.World, ):
+        """Check if chain of items contains the given id."""
+
+
+def itemchain_contains(start_entity: int, target: int, world: desper.World) -> int:
+    """Check if chain of items contains the given entity."""
+    current_entity = start_entity
+    while current_entity is not None:
+        if current_entity == target:
+            return True
+
+        current_entity = world.get_component(current_entity, Item).hooked
+
+    return False
 
 
 @desper.event_handler('on_mouse_game_press', 'on_mouse_game_motion', 'on_mouse_game_release')
@@ -76,8 +96,20 @@ class ItemDragProcessor(desper.Processor):
         if self.dragged is None:        # Nothing to release
             return
 
-        # Apply a
-        if self.last_delta.mag > 0.5:
+        # Handle item hooking
+        hooked = False
+        for entity, _ in self.world.get(physics.CollisionRectangle):
+            if entity == self.dragged.entity:       # Don't self collide
+                continue
+
+            # Hook things that overlap, prevent hooking into a loop
+            if (physics.rectangle_collision(self.dragged, desper.controller(entity, self.world))
+                    and not itemchain_contains(entity, self.dragged.entity, self.world)):
+                self.dragged.get_component(Item).hooked = entity
+                hooked = True
+
+        # Apply an eventual inertia from the mouse, if not hooked
+        if not hooked and self.last_delta.mag > 0.5:
             self.dragged.add_component(physics.Velocity(*(self.last_delta / self.last_dt)
                                                         .limit(MAX_MOUSE_INTERTIA_SPEED)))
 
@@ -88,3 +120,33 @@ class ItemDragProcessor(desper.Processor):
         """Reset mouse delta and keep track of dt."""
         self.last_delta = Vec2()
         self.last_dt = clamp(dt, constants.MIN_DT, constants.MAX_DT)
+
+
+def get_next_top_value(world: desper.World) -> int:
+    """Retrieve next top value for items in world and increase it."""
+    drag_processor = world.get_processor(ItemDragProcessor)
+    return drag_processor.get_next_top_value()
+
+
+class HookedProcessor(desper.Processor):
+    """Process hooked items.
+
+    Hooked items mirror their parent's positions. and should be on
+    top of them.
+    """
+
+    def process(self, _):
+        for entity, item in self.world.get(Item):
+            if item.hooked is None:
+                continue
+
+            # Adjust position according to parent
+            transform = self.world.get_component(entity, desper.Transform2D)
+            parent_transform = self.world.get_component(item.hooked, desper.Transform2D)
+            transform.position = parent_transform.position
+
+            # Check ordering
+            sprite = self.world.get_component(entity, Sprite)
+            parent_sprite = self.world.get_component(item.hooked, Sprite)
+            if sprite.group.order <= parent_sprite.group.order:
+                sprite.group = pyglet.graphics.Group(get_next_top_value(self.world))
