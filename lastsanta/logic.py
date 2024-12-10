@@ -21,6 +21,7 @@ class ItemDragProcessor(desper.Processor):
     offset: Vec2 = Vec2()
     last_delta: Vec2 = Vec2()
     last_dt: float = 1.
+    _next_top_value: int = 1000
 
     def on_mouse_game_press(self, point: Vec2, buttons: int, mod):
         """Event: handle mouse."""
@@ -61,6 +62,14 @@ class ItemDragProcessor(desper.Processor):
         self.dragged = top_item
         self.offset = point - top_item.get_component(desper.Transform2D).position
         top_item.remove_component(physics.Velocity)
+        # Bring on top globally
+        top_item.get_component(Sprite).group = pyglet.graphics.Group(self.get_next_top_value())
+
+    def get_next_top_value(self) -> int:
+        """Return next top z value and increase it."""
+        next_value = self._next_top_value
+        self._next_top_value += 1
+        return next_value
 
     def end_drag(self):
         """If something is being dragged, release it."""
