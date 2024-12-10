@@ -68,11 +68,18 @@ def world_transformer(handle, world: desper.World):
                         physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
 
     world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
-                               batch=main_batch, group=pyglet.graphics.Group()),
+                               batch=main_batch, group=pyglet.graphics.Group(1)),
                         desper.Transform2D((1500., 500.)),
                         pdesper.SpriteSync(),
                         physics.BBox(),
                         physics.Velocity(-300, -300),
+                        logic.Item())
+
+    world.create_entity(Sprite(desper.resource_map['image/toys/base1'], subpixel=True,
+                               batch=main_batch, group=pyglet.graphics.Group(0)),
+                        desper.Transform2D((1600., 300.)),
+                        pdesper.SpriteSync(),
+                        physics.BBox(),
                         logic.Item())
 
     # Add borders to the whole view
