@@ -73,14 +73,16 @@ def world_transformer(handle, world: desper.World):
                         pdesper.SpriteSync(),
                         physics.BBox(),
                         physics.Velocity(-300, -300),
-                        logic.Item())
+                        logic.Item(),
+                        logic.GiftPart('lightbulb'))
 
     world.create_entity(Sprite(desper.resource_map['image/toys/base1'], subpixel=True,
                                batch=main_batch, group=pyglet.graphics.Group(0)),
                         desper.Transform2D((1600., 300.)),
                         pdesper.SpriteSync(),
                         physics.BBox(),
-                        logic.Item())
+                        logic.Item(),
+                        logic.GiftPart('base'))
 
     # Add borders to the whole view
     world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero

@@ -209,6 +209,33 @@ class GiftPart:
     name: str
 
 
+def find_major_gift(world: desper.World) -> list[GiftPart]:
+    """Return the major gift from the world."""
+    # Build all gifts in the scene
+    gifts = {}
+    explored = set()
+    for entity, item in world.get(Item):
+        if entity in explored:
+            continue
+
+        # Populate candidate gift
+        last_entity = entity
+        current_entity = entity
+        current_chain = []
+        while current_entity is not None:
+            last_entity = current_entity
+            # Don't add parts more than once
+            if current_entity not in explored:
+                current_chain.append(world.get_component(current_entity, GiftPart))
+                explored.add(current_entity)
+            current_entity = world.get_component(current_entity, Item).hooked
+
+        gifts.setdefault(last_entity, [])
+        gifts[last_entity] += current_chain
+
+    return max(gifts.values(), key=len)
+
+
 class Constraint:
     """Base class for gift composition constraints."""
 
