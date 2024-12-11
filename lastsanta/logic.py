@@ -257,3 +257,27 @@ class ItemSetConstraint(Constraint):
             reason = [self]
 
         return max(errors, 0), reason
+
+
+class ItemsNumberConstraint(Constraint):
+    """Constraint: check if total amount of parts is higher/lower than the given amount.
+
+    Default strategy is "lower or equal".
+    """
+
+    def __init__(self, count: int, method=operator.le):
+        self.count = count
+        self.method = method
+
+    def check(self, items: Collection[GiftPart]) -> tuple[int, list[Any]]:
+        """Check if item count is higher/lower than the given amount.
+
+        For simplicity, error number is limited to 1.
+        Return self as reason, if there are errors.
+        """
+        errors = not self.method(len(items), self.count)
+        reason = []
+        if errors:
+            reason = [self]
+
+        return errors, reason
