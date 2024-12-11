@@ -1,5 +1,8 @@
 """Main game logic and user interactions."""
+import operator
 from dataclasses import dataclass, field
+from collections.abc import Collection
+from typing import Any
 
 import desper
 import pyglet
@@ -198,3 +201,59 @@ class HookedProcessor(desper.Processor):
             parent_sprite = self.world.get_component(item.hooked, Sprite)
             if sprite.group.order <= parent_sprite.group.order:
                 sprite.group = pyglet.graphics.Group(get_next_top_value(self.world))
+
+
+@dataclass(frozen=True)
+class GiftPart:
+    """Represent a gift part."""
+    name: str
+
+
+class Constraint:
+    """Base class for gift composition constraints."""
+
+    def check(self, items: Collection[GiftPart]) -> tuple[int, list[Any]]:
+        """Override to describe specific constraint check logic.
+
+        Return number of errors and list of reasons.
+        """
+
+
+class JointConstraint(Constraint):
+    """Conjunction between constraints."""
+
+    def __init__(self, *constraints: Constraint):
+        self.constraints = constraints
+
+    def check(self, items: Collection[GiftPart]) -> tuple[int, list[Any]]:
+        """Return sum of errors of joint subconstraints.
+
+        Reason list is a concatenation of all sublists.
+        """
+        all_checks = [constraint.check(items) for constraint in self.constraints]
+        return (sum(map(operator.itemgetter(0), all_checks)),
+                sum(map(operator.itemgetter(1), all_checks), start=[]))
+
+
+class ItemSetConstraint(Constraint):
+    """Constrant: the gift contains a certain amount of gift parts, from a given set."""
+
+    def __init__(self, count: int, *names: str):
+        self.allowed_set = set(names)
+        self.count = count
+
+    def check(self, items: Collection[GiftPart]) -> tuple[int, list[Any]]:
+        """Return number of missing items to reach given count.
+
+        Return self as reason, if there are errors.
+        """
+        total_checks = 0
+        for item in items:
+            total_checks += item.name in self.allowed_set
+
+        errors = max(self.count - total_checks, 0)
+        reason = []
+        if errors:
+            reason = [self]
+
+        return max(errors, 0), reason
