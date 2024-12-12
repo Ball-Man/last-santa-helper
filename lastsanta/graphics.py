@@ -3,6 +3,7 @@ import desper
 import pyglet_desper as pdesper
 import pyglet
 from pyglet.window import Window
+from typing import SupportsFloat
 
 
 @desper.event_handler('on_resize')
@@ -45,3 +46,16 @@ class SpriteSync(pdesper.SpriteSync):
         """
         sprite = self.get_component(self.component_type)
         sprite.position = (*new_position, sprite.z)
+
+
+class LetterSize(desper.Controller):
+    """Sync size of the underlying sprite according to text height."""
+    sprite = desper.ComponentReference(pyglet.gui.NinePatch)
+    label = desper.ComponentReference(pyglet.text.Label)
+
+    def __init__(self, height_extra_offset: SupportsFloat = 100):
+        self.height_extra_offset = height_extra_offset
+
+    def on_add(self, *args):
+        super().on_add(*args)
+        self.sprite.height = self.label.content_height + self.height_extra_offset

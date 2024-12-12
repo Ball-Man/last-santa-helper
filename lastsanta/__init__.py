@@ -6,6 +6,7 @@ from pyglet.window import Window
 from pyglet.sprite import Sprite
 from pyglet.shapes import Line
 from pyglet.gl import glClearColor
+from pyglet.gui import NinePatch
 
 from . import constants
 from . import graphics
@@ -83,6 +84,20 @@ def world_transformer(handle, world: desper.World):
                         physics.BBox(),
                         logic.Item(),
                         logic.GiftPart('base'))
+
+    letter_image = desper.resource_map['image/letter']
+    world.create_entity(
+        NinePatch(letter_image,
+                  width=letter_image.width, height=letter_image.height,
+                  batch=main_batch, group=pyglet.graphics.Group(-10)),
+        pyglet.text.Label('This is super shape, take this and that, tell me more, and more. ' * 6,
+                          x=25, y=50,
+                          anchor_y='bottom',
+                          multiline=True,
+                          width=letter_image.width - 50,
+                          font_name='Super Shape', batch=main_batch,
+                          font_size=20, color=constants.FG_COLOR),
+        graphics.LetterSize())
 
     # Add borders to the whole view
     world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero
