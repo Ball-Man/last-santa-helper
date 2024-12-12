@@ -98,6 +98,10 @@ def main():
 
     pdesper.resource_populator(desper.resource_map, trim_extensions=True)
 
+    # Load fonts
+    for font_handle in desper.resource_map['font'].handles:
+        desper.resource_map['font'][font_handle]
+
     handle = desper.WorldHandle()
     handle.transform_functions.append(pdesper.init_graphics_transformer)
     handle.transform_functions.append(world_transformer)
