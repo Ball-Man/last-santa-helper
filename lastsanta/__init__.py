@@ -87,6 +87,8 @@ def world_transformer(handle, world: desper.World):
 
     letter_image = desper.resource_map['image/letter']
     world.create_entity(
+        desper.Transform2D(),
+        physics.Velocity(300),
         NinePatch(letter_image,
                   width=letter_image.width, height=letter_image.height,
                   batch=main_batch, group=pyglet.graphics.Group(-10)),
@@ -97,7 +99,8 @@ def world_transformer(handle, world: desper.World):
                           width=letter_image.width - 50,
                           font_name='Super Shape', batch=main_batch,
                           font_size=20, color=constants.FG_COLOR),
-        graphics.LetterSize())
+        graphics.LetterSize(),
+        graphics.LetterPositionSync())
 
     # Add borders to the whole view
     world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero

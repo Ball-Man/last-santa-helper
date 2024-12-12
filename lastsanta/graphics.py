@@ -59,3 +59,20 @@ class LetterSize(desper.Controller):
     def on_add(self, *args):
         super().on_add(*args)
         self.sprite.height = self.label.content_height + self.height_extra_offset
+
+
+class LetterPositionSync(pdesper.PositionSync2D):
+    """Custom transform sync for letter objects (nine patch + label)."""
+    sprite = desper.ComponentReference(pyglet.gui.NinePatch)
+    label = desper.ComponentReference(pyglet.text.Label)
+
+    def __init__(self, label_position_offset: tuple[SupportsFloat, SupportsFloat] = (25, 50)):
+        super().__init__(None)
+
+        self.label_position_offset = label_position_offset
+
+    def on_position_change(self, new_position: desper.math.Vec2):
+        sprite = self.sprite
+        sprite.position = (*new_position, sprite.z)
+        label = self.label
+        label.position = (*(new_position + self.label_position_offset), label.z)
