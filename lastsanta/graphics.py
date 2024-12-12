@@ -33,3 +33,15 @@ class BlackBarsViewportHandler(desper.Controller):
         if new_window_ratio <= self.game_ratio:
             actual_height = new_width / self.game_ratio
             self.camera.viewport = (0, (new_height - actual_height) / 2, new_width, actual_height)
+
+
+class SpriteSync(pdesper.SpriteSync):
+    """Custom sprite sync with mild z support."""
+
+    def on_position_change(self, new_position: desper.math.Vec2):
+        """Event handler: update graphical component position.
+
+        Ignore z.
+        """
+        sprite = self.get_component(self.component_type)
+        sprite.position = (*new_position, sprite.z)
