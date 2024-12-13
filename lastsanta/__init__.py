@@ -12,6 +12,7 @@ from . import constants
 from . import graphics
 from . import physics
 from . import logic
+from . import dialogue
 
 # Setup main loop and window
 interval = 1 / 60
@@ -114,6 +115,7 @@ def world_transformer(handle, world: desper.World):
 def main():
     glClearColor(*(constants.BG_COLOR / 255))
 
+    pdesper.resource_populator.add_rule(constants.DIAL_RESOURCES_PATH, dialogue.DialogueHandle)
     pdesper.resource_populator(desper.resource_map, trim_extensions=True)
 
     # Load fonts

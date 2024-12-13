@@ -1,5 +1,7 @@
 import pyglet.math as pmath
 
+DIAL_RESOURCES_PATH = 'dial'
+
 VIEW_W = 1920
 VIEW_H = 1080
 
