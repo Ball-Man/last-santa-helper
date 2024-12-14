@@ -23,20 +23,6 @@ loop.connect_window_events(window, 'on_draw', 'on_mouse_press', 'on_mouse_releas
                            'on_mouse_motion', 'on_mouse_drag')
 
 
-@desper.event_handler('on_draw')
-class CameraProcessor(desper.Processor):
-
-    def __init__(self):
-        self.window = next(iter(pyglet.app.windows))
-
-    def process(self, dt):
-        pass
-
-    def on_draw(self):
-        self.window.clear()
-        self.world.dispatch(pdesper.ON_CAMERA_DRAW_EVENT_NAME)
-
-
 def world_transformer(handle, world: desper.World):
     main_batch = pdesper.retrieve_batch(world)
 
@@ -45,7 +31,7 @@ def world_transformer(handle, world: desper.World):
     world.create_entity(physics.MouseToGameSpace())
 
     # Rendering
-    world.add_processor(CameraProcessor())
+    world.add_processor(graphics.CameraProcessor())
     world.create_entity(
         graphics.BlackBarsViewportHandler(constants.VIEW_W, constants.VIEW_H),
         pdesper.Camera(main_batch,

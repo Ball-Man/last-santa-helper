@@ -6,6 +6,20 @@ from pyglet.window import Window
 from typing import SupportsFloat
 
 
+@desper.event_handler('on_draw')
+class CameraProcessor(desper.Processor):
+
+    def __init__(self):
+        self.window = next(iter(pyglet.app.windows))
+
+    def process(self, dt):
+        pass
+
+    def on_draw(self):
+        self.window.clear()
+        self.world.dispatch(pdesper.ON_CAMERA_DRAW_EVENT_NAME)
+
+
 @desper.event_handler('on_resize')
 class BlackBarsViewportHandler(desper.Controller):
     """On window resize, rescale and center camera's viewport.
