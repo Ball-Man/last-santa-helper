@@ -9,6 +9,8 @@ from . import constants
 from . import physics
 from . import graphics
 
+LANG_ITA = 'ITA'
+
 
 class DialogueHandle(desper.Handle[DialogueData]):
     """Handle for dialogue resources."""
@@ -21,22 +23,33 @@ class DialogueHandle(desper.Handle[DialogueData]):
             return from_file(fin)
 
 
-def continue_dialogue(dialogue: Dialogue):
+def continue_dialogue(dialogue: Dialogue, language=LANG_ITA):
     """Get next dialogue node, build a world accoringly and switch.
 
     TODO
     """
-    new_node = dialogue.next()
+    stop = False
+    while not stop:
+        new_node = dialogue.next()
 
-    match new_node:
-        case None:
-            print('End of dialogue file, what do we do?')
+        match new_node:
+            case None:
+                print('End of dialogue file, what do we do?')
+                stop = True
 
-        case ShowMessageNode():
-            print('Show message')
+            # If it's a dialogue line, build a new world handle and
+            # switch to it.
+            case ShowMessageNode():
+                new_handle = desper.WorldHandle()
+                new_handle.transform_functions.append(pdesper.init_graphics_transformer)
+                new_handle.transform_functions.append(
+                    DialogueWorldTransformer(new_node.text.get(language, '-- no text')))
+                new_handle.transform_functions.append(DialogueMachineTransfomer(dialogue))
+                desper.switch(new_handle, clear_current=True)
 
-        case WaitNode():
-            print('Wait node')
+            case WaitNode():
+                print('Wait node')
+                stop = True
 
 
 @desper.event_handler('on_mouse_game_press')
