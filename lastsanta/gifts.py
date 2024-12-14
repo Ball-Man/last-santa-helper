@@ -9,7 +9,7 @@ BASE1 = 'base1'
 gifts = {
     'test':
         JointConstraint(
-            ItemSetConstraint(BASE1),
-            ItemSetConstraint(LIGHTBULB)
+            ItemSetConstraint(1, BASE1),
+            ItemSetConstraint(1, LIGHTBULB)
         )
 }
