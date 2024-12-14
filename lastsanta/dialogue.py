@@ -1,6 +1,7 @@
 import desper
 import pyglet_desper as pdesper
-from ddesigner import from_file, DialogueData
+from ddesigner import from_file, DialogueData, Dialogue
+from ddesigner.default_model import ShowMessageNode, WaitNode
 from pyglet.text import Label
 from pyglet.math import Mat4
 
@@ -20,6 +21,36 @@ class DialogueHandle(desper.Handle[DialogueData]):
             return from_file(fin)
 
 
+def continue_dialogue(dialogue: Dialogue):
+    """Get next dialogue node, build a world accoringly and switch.
+
+    TODO
+    """
+    new_node = dialogue.next()
+
+    match new_node:
+        case None:
+            print('End of dialogue file, what do we do?')
+
+        case ShowMessageNode():
+            print('Show message')
+
+        case WaitNode():
+            print('Wait node')
+
+
+@desper.event_handler('on_mouse_game_press')
+class DialogueTriggerOnClick:
+    """On click, continue dialogue."""
+
+    def __init__(self, dialogue: Dialogue):
+        self.dialogue = dialogue
+
+    def on_mouse_game_press(self, *args, **kwargs):
+        """Ignore all params, any click works."""
+        continue_dialogue(self.dialogue)
+
+
 class DialogueWorldTransformer:
     """Populate world with a dialogue line."""
 
@@ -30,9 +61,6 @@ class DialogueWorldTransformer:
 
     def __call__(self, _, world: desper.World):
         main_batch = pdesper.retrieve_batch(world)
-
-        # General control
-        world.create_entity(physics.MouseToGameSpace())
 
         # Rendering
         world.add_processor(graphics.CameraProcessor())
@@ -45,3 +73,14 @@ class DialogueWorldTransformer:
                                   multiline=True, anchor_y='bottom',
                                   color=constants.FG_COLOR, font_name=self.font_name,
                                   font_size=self.font_size, batch=main_batch))
+
+
+class DialogueMachineTransfomer:
+    """Given a dialogue state machine, add logic to transition forward."""
+
+    def __init__(self, dialogue: Dialogue):
+        self.dialogue = dialogue
+
+    def __call__(self, _, world: desper.World):
+        world.create_entity(physics.MouseToGameSpace())
+        world.create_entity(DialogueTriggerOnClick(self.dialogue))
