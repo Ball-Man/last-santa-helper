@@ -6,12 +6,14 @@ import pyglet.math as pmath
 from pyglet.shapes import Line
 from pyglet.sprite import Sprite
 from pyglet.gui import NinePatch
+from ddesigner import Dialogue
 
 from . import graphics
 from . import logic
 from . import constants
 from . import physics
 from . import gifts
+from . import dialogue
 
 
 @desper.event_handler('on_mouse_game_press')
@@ -78,6 +80,21 @@ class TheHandler(desper.Controller):
         yield from self._lerp_to_target(start_pos)              # Transition out
 
 
+@desper.event_handler('on_delivery')
+class DialogueManager:
+    """Continue dialogue on delivery."""
+
+    def __init__(self, dialogue: Dialogue, transition_time=2.):
+        self.dialogue = dialogue
+        self.transition_time = transition_time
+
+    @desper.coroutine
+    def on_delivery(self, *args):
+        """Wait a bit and continue."""
+        yield self.transition_time
+        dialogue.continue_dialogue(self.dialogue)
+
+
 def world_transformer(handle, world: desper.World):
     main_batch = pdesper.retrieve_batch(world)
 
@@ -121,12 +138,16 @@ def world_transformer(handle, world: desper.World):
                         pdesper.SpriteSync(),
                         TheHandler())
 
+    # Delivery button
     world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
                         desper.Transform2D((300, constants.VIEW_H - 200)),
                         pdesper.SpriteSync(),
                         physics.BBox(),
                         DeliveryButton())
 
+    world.create_entity(DialogueManager(Dialogue(desper.resource_map['dial/story'])))
+
+    # Objects
     world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
                                batch=main_batch, group=pyglet.graphics.Group(1)),
                         desper.Transform2D((1500., 500.)),
