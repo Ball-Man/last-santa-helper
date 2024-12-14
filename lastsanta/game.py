@@ -11,6 +11,7 @@ from . import graphics
 from . import logic
 from . import constants
 from . import physics
+from . import gifts
 
 
 def world_transformer(handle, world: desper.World):
@@ -44,6 +45,9 @@ def world_transformer(handle, world: desper.World):
                              batch=main_batch, color=constants.FG_COLOR,
                              width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
                         physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
+
+    # Game elements and logic
+    world.create_entity(logic.GiftConstraint(gifts.gifts['test']))
 
     world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
                                batch=main_batch, group=pyglet.graphics.Group(1)),

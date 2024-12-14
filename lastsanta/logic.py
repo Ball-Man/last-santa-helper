@@ -308,3 +308,9 @@ class ItemsNumberConstraint(Constraint):
             reason = [self]
 
         return errors, reason
+
+
+@dataclass
+class GiftConstraint:
+    """Encapsulate the level's current gift constraints."""
+    constraint: Constraint
