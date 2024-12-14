@@ -14,6 +14,32 @@ from . import physics
 from . import gifts
 
 
+@desper.event_handler('on_mouse_game_press')
+class DeliveryButton(desper.Controller):
+    """If clicked, deliver gift and progress game."""
+    # collision_rectangle = desper.ComponentReference(physics.CollisionRectangle)
+
+    def on_mouse_game_press(self, point: pmath.Vec2, buttons, *args):
+        if buttons & pyglet.window.mouse.LEFT and physics.point_collision(point, self):
+            self.deliver()
+
+    def deliver(self):
+        """Retrieve and deliver, major gift, check conformity."""
+        # Don't do anything if there is not current order
+        gift_constraint_query = self.world.get(logic.GiftConstraint)
+        if not gift_constraint_query:
+            return
+
+        # Retrive gift and constraint
+        major_gift = logic.find_major_gift(self.world)
+        constraint_entity, constraint_container = gift_constraint_query[0]
+        constraint: logic.Constraint = constraint_container.constraint
+
+        self.world.delete_entity(constraint_entity)
+
+        print(constraint.check(major_gift))
+
+
 def world_transformer(handle, world: desper.World):
     main_batch = pdesper.retrieve_batch(world)
 
@@ -49,6 +75,12 @@ def world_transformer(handle, world: desper.World):
     # Game elements and logic
     world.create_entity(logic.GiftConstraint(gifts.gifts['test']))
 
+    world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
+                        desper.Transform2D((300, constants.VIEW_H - 200)),
+                        pdesper.SpriteSync(),
+                        physics.BBox(),
+                        DeliveryButton())
+
     world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
                                batch=main_batch, group=pyglet.graphics.Group(1)),
                         desper.Transform2D((1500., 500.)),
@@ -64,7 +96,7 @@ def world_transformer(handle, world: desper.World):
                         pdesper.SpriteSync(),
                         physics.BBox(),
                         logic.Item(),
-                        logic.GiftPart('base'))
+                        logic.GiftPart('base1'))
 
     letter_image = desper.resource_map['image/letter']
     world.create_entity(
