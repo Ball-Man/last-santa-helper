@@ -12,7 +12,6 @@ from . import graphics
 from . import logic
 from . import constants
 from . import physics
-from . import gifts
 from . import dialogue
 
 
@@ -95,97 +94,104 @@ class DialogueManager:
         dialogue.continue_dialogue(self.dialogue)
 
 
-def world_transformer(handle, world: desper.World):
-    main_batch = pdesper.retrieve_batch(world)
+class MainGameTransformer:
+    """Populate a game level."""
 
-    # General control
-    world.add_processor(desper.CoroutineProcessor())
-    world.add_processor(logic.ItemDragProcessor())
-    world.create_entity(physics.MouseToGameSpace())
+    def __init__(self, gift_constraint, story_dialogue: Dialogue):
+        self.gift_constraint = gift_constraint
+        self.story_dialogue = story_dialogue
 
-    # Rendering
-    world.add_processor(graphics.CameraProcessor())
-    world.create_entity(
-        graphics.BlackBarsViewportHandler(constants.VIEW_W, constants.VIEW_H),
-        pdesper.Camera(main_batch,
-                       projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
+    def __call__(self, handle, world: desper.World):
+        main_batch = pdesper.retrieve_batch(world)
 
-    # Physics
-    world.add_processor(physics.RectangleToAxisProcessor())
-    world.add_processor(physics.VelocityProcessor())
-    world.add_processor(logic.HookedProcessor())
+        # General control
+        world.add_processor(desper.CoroutineProcessor())
+        world.add_processor(logic.ItemDragProcessor())
+        world.create_entity(physics.MouseToGameSpace())
 
-    # Layout
-    world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
-                             constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
-                             batch=main_batch, color=constants.FG_COLOR,
-                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
-                        physics.CollisionAxes(constants.HORIZONTAL_MAIN_SEPARATOR_Y, 1))
-    world.create_entity(Line(constants.VERTICAL_MAIN_SEPARATOR_X, 0,
-                             constants.VERTICAL_MAIN_SEPARATOR_X,
-                             constants.HORIZONTAL_MAIN_SEPARATOR_Y,
-                             batch=main_batch, color=constants.FG_COLOR,
-                             width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
-                        physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
+        # Rendering
+        world.add_processor(graphics.CameraProcessor())
+        world.create_entity(
+            graphics.BlackBarsViewportHandler(constants.VIEW_W, constants.VIEW_H),
+            pdesper.Camera(main_batch,
+                           projection=pmath.Mat4.orthogonal_projection(0, 1920, 0, 1080, 0, 1)))
 
-    # Game elements and logic
-    world.create_entity(logic.GiftConstraint(gifts.gifts['test']))
+        # Physics
+        world.add_processor(physics.RectangleToAxisProcessor())
+        world.add_processor(physics.VelocityProcessor())
+        world.add_processor(logic.HookedProcessor())
 
-    # Handler coming in and out
-    world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
-                        desper.Transform2D((constants.VIEW_W + 400,
-                                            constants.HORIZONTAL_MAIN_SEPARATOR_Y)),
-                        pdesper.SpriteSync(),
-                        TheHandler())
+        # Layout
+        world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
+                                 constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
+                                 batch=main_batch, color=constants.FG_COLOR,
+                                 width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
+                            physics.CollisionAxes(constants.HORIZONTAL_MAIN_SEPARATOR_Y, 1))
+        world.create_entity(Line(constants.VERTICAL_MAIN_SEPARATOR_X, 0,
+                                 constants.VERTICAL_MAIN_SEPARATOR_X,
+                                 constants.HORIZONTAL_MAIN_SEPARATOR_Y,
+                                 batch=main_batch, color=constants.FG_COLOR,
+                                 width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
+                            physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
 
-    # Delivery button
-    world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
-                        desper.Transform2D((300, constants.VIEW_H - 200)),
-                        pdesper.SpriteSync(),
-                        physics.BBox(),
-                        DeliveryButton())
+        # Game elements and logic
+        world.create_entity(logic.GiftConstraint(self.gift_constraint))
 
-    world.create_entity(DialogueManager(Dialogue(desper.resource_map['dial/story'])))
+        # Handler coming in and out
+        world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
+                            desper.Transform2D((constants.VIEW_W + 400,
+                                                constants.HORIZONTAL_MAIN_SEPARATOR_Y)),
+                            pdesper.SpriteSync(),
+                            TheHandler())
 
-    # Objects
-    world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
-                               batch=main_batch, group=pyglet.graphics.Group(1)),
-                        desper.Transform2D((1500., 500.)),
-                        pdesper.SpriteSync(),
-                        physics.BBox(),
-                        physics.Velocity(-300, -300),
-                        logic.Item(),
-                        logic.GiftPart('lightbulb'))
+        # Delivery button
+        world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
+                            desper.Transform2D((300, constants.VIEW_H - 200)),
+                            pdesper.SpriteSync(),
+                            physics.BBox(),
+                            DeliveryButton())
 
-    world.create_entity(Sprite(desper.resource_map['image/toys/base1'], subpixel=True,
-                               batch=main_batch, group=pyglet.graphics.Group(0)),
-                        desper.Transform2D((1600., 300.)),
-                        pdesper.SpriteSync(),
-                        physics.BBox(),
-                        logic.Item(),
-                        logic.GiftPart('base1'))
+        world.create_entity(DialogueManager(self.story_dialogue))
 
-    letter_image = desper.resource_map['image/letter']
-    world.create_entity(
-        desper.Transform2D(),
-        physics.Velocity(300),
-        NinePatch(letter_image,
-                  width=letter_image.width, height=letter_image.height,
-                  batch=main_batch, group=pyglet.graphics.Group(-10)),
-        pyglet.text.Label('This is super shape, take this and that, tell me more, and more. ' * 6,
-                          x=25, y=50,
-                          anchor_y='bottom',
-                          multiline=True,
-                          width=letter_image.width - 50,
-                          font_name='Super Shape', batch=main_batch,
-                          font_size=20, color=constants.FG_COLOR),
-        graphics.LetterSize(),
-        graphics.LetterPositionSync())
+        # Objects
+        world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
+                                   batch=main_batch, group=pyglet.graphics.Group(1)),
+                            desper.Transform2D((1500., 500.)),
+                            pdesper.SpriteSync(),
+                            physics.BBox(),
+                            physics.Velocity(-300, -300),
+                            logic.Item(),
+                            logic.GiftPart('lightbulb'))
 
-    # Add borders to the whole view
-    world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero
-    world.create_entity(physics.CollisionAxes(0., 0))                       # Vertical zero
-    world.create_entity(physics.CollisionAxes(constants.VIEW_W, 0))         # Vertical right
+        world.create_entity(Sprite(desper.resource_map['image/toys/base1'], subpixel=True,
+                                   batch=main_batch, group=pyglet.graphics.Group(0)),
+                            desper.Transform2D((1600., 300.)),
+                            pdesper.SpriteSync(),
+                            physics.BBox(),
+                            logic.Item(),
+                            logic.GiftPart('base1'))
 
-    if __debug__:
-        world.create_entity(physics.PointCheckDebug())
+        letter_image = desper.resource_map['image/letter']
+        world.create_entity(
+            desper.Transform2D(),
+            physics.Velocity(300),
+            NinePatch(letter_image,
+                      width=letter_image.width, height=letter_image.height,
+                      batch=main_batch, group=pyglet.graphics.Group(-10)),
+            pyglet.text.Label('This is super shape. ' * 12,
+                              x=25, y=50,
+                              anchor_y='bottom',
+                              multiline=True,
+                              width=letter_image.width - 50,
+                              font_name='Super Shape', batch=main_batch,
+                              font_size=20, color=constants.FG_COLOR),
+            graphics.LetterSize(),
+            graphics.LetterPositionSync())
+
+        # Add borders to the whole view
+        world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero
+        world.create_entity(physics.CollisionAxes(0., 0))                       # Vertical zero
+        world.create_entity(physics.CollisionAxes(constants.VIEW_W, 0))         # Vertical right
+
+        if __debug__:
+            world.create_entity(physics.PointCheckDebug())
