@@ -1,6 +1,6 @@
 import desper
 import pyglet_desper as pdesper
-from ddesigner import from_file
+from ddesigner import from_file, DialogueData
 from pyglet.text import Label
 from pyglet.math import Mat4
 
@@ -9,13 +9,13 @@ from . import physics
 from . import graphics
 
 
-class DialogueHandle(desper.Handle):
+class DialogueHandle(desper.Handle[DialogueData]):
     """Handle for dialogue resources."""
 
     def __init__(self, filename):
         self.filename = filename
 
-    def load(self):
+    def load(self) -> DialogueData:
         with open(self.filename) as fin:
             return from_file(fin)
 
