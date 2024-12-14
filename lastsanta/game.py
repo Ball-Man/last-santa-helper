@@ -37,13 +37,52 @@ class DeliveryButton(desper.Controller):
 
         self.world.delete_entity(constraint_entity)
 
-        print(constraint.check(major_gift))
+        self.world.dispatch('on_delivery', constraint.check(major_gift))
+
+
+@desper.event_handler('on_delivery', 'on_update')
+class TheHandler(desper.Controller):
+    """Move the handler in and out of the scene."""
+    transform = desper.ComponentReference(desper.Transform2D)
+
+    def __init__(self, target_x=1200, transition_time=1.):
+        self.target_x = target_x
+        self.dt = 1.
+        self.transition_time = transition_time
+
+    def on_update(self, dt):
+        self.dt = pmath.clamp(dt, constants.MIN_DT, constants.MAX_DT)
+
+    def _lerp_to_target(self, target_x):
+        """Generator, can be used as coroutien to lerp to a target."""
+        target_vec = desper.math.Vec2(target_x, self.transform.position.y)
+
+        t = 0
+        speed = 1 / self.transition_time
+        while t < 0.99:
+            t = min(1., t + self.dt * speed)
+            self.transform.position = self.transform.position.lerp(target_vec, t)
+            yield
+
+    @desper.coroutine
+    def on_delivery(self, *args):
+        # A bit funky, we need dt somehow
+        self.world.add_processor(desper.OnUpdateProcessor(), -1)
+        start_pos = self.transform.position.x
+        yield 0.1
+
+        yield from self._lerp_to_target(self.target_x)          # Transition in
+        # Wait a sec. Here, some other component shall switch to the
+        # dialogue or whatever.
+        yield 2
+        yield from self._lerp_to_target(start_pos)              # Transition out
 
 
 def world_transformer(handle, world: desper.World):
     main_batch = pdesper.retrieve_batch(world)
 
     # General control
+    world.add_processor(desper.CoroutineProcessor())
     world.add_processor(logic.ItemDragProcessor())
     world.create_entity(physics.MouseToGameSpace())
 
@@ -74,6 +113,13 @@ def world_transformer(handle, world: desper.World):
 
     # Game elements and logic
     world.create_entity(logic.GiftConstraint(gifts.gifts['test']))
+
+    # Handler coming in and out
+    world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
+                        desper.Transform2D((constants.VIEW_W + 400,
+                                            constants.HORIZONTAL_MAIN_SEPARATOR_Y)),
+                        pdesper.SpriteSync(),
+                        TheHandler())
 
     world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
                         desper.Transform2D((300, constants.VIEW_H - 200)),
