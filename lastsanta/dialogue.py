@@ -14,6 +14,7 @@ from . import gifts
 LANG_ITA = 'ITA'
 GIFT_NAME_DIALOGUE_VAR = 'gift_name'
 LETTER_NAME_DIALOGUE_VAR = 'letter_name'
+BACK_DIALOGUE_VAR = 'back'
 
 
 class DialogueHandle(desper.Handle[DialogueData]):
@@ -44,11 +45,18 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
             # If it's a dialogue line, build a new world handle and
             # switch to it.
             case ShowMessageNode():
+                # Keep track of game world handle
+                current_world = desper.default_loop.current_world
+                passthrough_handle = None
+                if current_world is not None:
+                    _, passthrough_handle = current_world.get(desper.WorldHandle)[0]
+
                 new_handle = desper.WorldHandle()
                 new_handle.transform_functions.append(pdesper.init_graphics_transformer)
                 new_handle.transform_functions.append(
                     DialogueWorldTransformer(new_node.text.get(language, '-- no text')))
-                new_handle.transform_functions.append(DialogueMachineTransfomer(dialogue))
+                new_handle.transform_functions.append(
+                    DialogueMachineTransfomer(dialogue, passthrough_handle))
                 switch_function(new_handle)
                 stop = True
 
@@ -56,12 +64,24 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
             case WaitNode():
                 # Retrieve metadata for game world
                 gift = gifts.gifts[dialogue[GIFT_NAME_DIALOGUE_VAR]]
+                go_back = dialogue[BACK_DIALOGUE_VAR]
 
-                new_handle = desper.WorldHandle()
-                new_handle.transform_functions.append(pdesper.init_graphics_transformer)
-                new_handle.transform_functions.append(game.MainGameTransformer(gift, dialogue))
+                # Get back to the previous world vs create a new one
+                current_world = desper.default_loop.current_world
+                handle = desper.WorldHandle()
+                if go_back and current_world is not None:
+                    _, handle = current_world.get(desper.WorldHandle)[0]
+                    # Apply gift transformer directly
+                    game.GiftTransformer(gift)(handle, handle())
+                    pass
 
-                switch_function(new_handle)
+                # New world, build from scratch
+                else:
+                    handle.transform_functions.append(pdesper.init_graphics_transformer)
+                    handle.transform_functions.append(game.MainGameTransformer(dialogue))
+                    handle.transform_functions.append(game.GiftTransformer(gift))
+
+                switch_function(handle)
                 stop = True
 
 
@@ -104,9 +124,11 @@ class DialogueWorldTransformer:
 class DialogueMachineTransfomer:
     """Given a dialogue state machine, add logic to transition forward."""
 
-    def __init__(self, dialogue: Dialogue):
+    def __init__(self, dialogue: Dialogue, previous: desper.WorldHandle):
         self.dialogue = dialogue
+        self.previous = previous
 
     def __call__(self, _, world: desper.World):
         world.create_entity(physics.MouseToGameSpace())
         world.create_entity(DialogueTriggerOnClick(self.dialogue))
+        world.create_entity(self.previous)

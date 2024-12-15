@@ -97,8 +97,7 @@ class DialogueManager:
 class MainGameTransformer:
     """Populate a game level."""
 
-    def __init__(self, gift_constraint, story_dialogue: Dialogue):
-        self.gift_constraint = gift_constraint
+    def __init__(self, story_dialogue: Dialogue):
         self.story_dialogue = story_dialogue
 
     def __call__(self, handle, world: desper.World):
@@ -108,6 +107,8 @@ class MainGameTransformer:
         world.add_processor(desper.CoroutineProcessor())
         world.add_processor(logic.ItemDragProcessor())
         world.create_entity(physics.MouseToGameSpace())
+        # Add self handle as an entity, used later for retrieval
+        world.create_entity(handle)
 
         # Rendering
         world.add_processor(graphics.CameraProcessor())
@@ -133,9 +134,6 @@ class MainGameTransformer:
                                  batch=main_batch, color=constants.FG_COLOR,
                                  width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
                             physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
-
-        # Game elements and logic
-        world.create_entity(logic.GiftConstraint(self.gift_constraint))
 
         # Handler coming in and out
         world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
@@ -195,3 +193,14 @@ class MainGameTransformer:
 
         if __debug__:
             world.create_entity(physics.PointCheckDebug())
+
+
+class GiftTransformer:
+    """Add given gift constraint to the world + TODO: some items."""
+
+    def __init__(self, gift_constraint):
+        self.gift_constraint = gift_constraint
+
+    def __call__(self, _, world: desper.World):
+        # Game elements and logic
+        world.create_entity(logic.GiftConstraint(self.gift_constraint))
