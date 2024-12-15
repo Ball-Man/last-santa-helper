@@ -141,7 +141,7 @@ class MainGameTransformer:
                             physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
 
         # Handler coming in and out
-        world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
+        world.create_entity(Sprite(desper.resource_map['image/handler'], batch=main_batch),
                             desper.Transform2D((constants.VIEW_W + 400,
                                                 constants.HORIZONTAL_MAIN_SEPARATOR_Y)),
                             pdesper.SpriteSync(),
