@@ -51,6 +51,10 @@ class TheHandler(desper.Controller):
         self.dt = 1.
         self.transition_time = transition_time
 
+    def on_add(self, *args):
+        super().on_add(*args)
+        self.start_pos = self.transform.position.x
+
     def on_update(self, dt):
         self.dt = pmath.clamp(dt, constants.MIN_DT, constants.MAX_DT)
 
@@ -69,14 +73,13 @@ class TheHandler(desper.Controller):
     def on_delivery(self, *args):
         # A bit funky, we need dt somehow
         self.world.add_processor(desper.OnUpdateProcessor(), -1)
-        start_pos = self.transform.position.x
         yield 0.1
 
         yield from self._lerp_to_target(self.target_x)          # Transition in
         # Wait a sec. Here, some other component shall switch to the
         # dialogue or whatever.
         yield 2
-        yield from self._lerp_to_target(start_pos)              # Transition out
+        yield from self._lerp_to_target(self.start_pos)              # Transition out
 
 
 @desper.event_handler('on_delivery')
