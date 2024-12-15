@@ -8,8 +8,12 @@ from pyglet.math import Mat4
 from . import constants
 from . import physics
 from . import graphics
+from . import game
+from . import gifts
 
 LANG_ITA = 'ITA'
+GIFT_NAME_DIALOGUE_VAR = 'gift_name'
+LETTER_NAME_DIALOGUE_VAR = 'letter_name'
 
 
 class DialogueHandle(desper.Handle[DialogueData]):
@@ -23,7 +27,7 @@ class DialogueHandle(desper.Handle[DialogueData]):
             return from_file(fin)
 
 
-def continue_dialogue(dialogue: Dialogue, language=LANG_ITA):
+def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, language=LANG_ITA):
     """Get next dialogue node, build a world accoringly and switch.
 
     TODO
@@ -45,10 +49,19 @@ def continue_dialogue(dialogue: Dialogue, language=LANG_ITA):
                 new_handle.transform_functions.append(
                     DialogueWorldTransformer(new_node.text.get(language, '-- no text')))
                 new_handle.transform_functions.append(DialogueMachineTransfomer(dialogue))
-                desper.switch(new_handle, clear_current=True)
+                switch_function(new_handle)
+                stop = True
 
+            # On wait, get back to new game
             case WaitNode():
-                print('Wait node')
+                # Retrieve metadata for game world
+                gift = gifts.gifts[dialogue[GIFT_NAME_DIALOGUE_VAR]]
+
+                new_handle = desper.WorldHandle()
+                new_handle.transform_functions.append(pdesper.init_graphics_transformer)
+                new_handle.transform_functions.append(game.MainGameTransformer(gift, dialogue))
+
+                switch_function(new_handle)
                 stop = True
 
 

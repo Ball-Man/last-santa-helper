@@ -4,10 +4,8 @@ from pyglet.window import Window
 from pyglet.gl import glClearColor
 from ddesigner import Dialogue
 
-from . import game
 from . import constants
 from . import dialogue
-from . import gifts
 
 # Setup main loop and window
 interval = 1 / 60
@@ -28,10 +26,5 @@ def main():
     for font_handle in desper.resource_map['font'].handles:
         desper.resource_map['font'][font_handle]
 
-    handle = desper.WorldHandle()
-    handle.transform_functions.append(pdesper.init_graphics_transformer)
-    handle.transform_functions.append(
-        game.MainGameTransformer(gifts.gifts['test'],
-                                 Dialogue(desper.resource_map['dial/story'])))
-    loop.switch(handle)
+    dialogue.continue_dialogue(Dialogue(desper.resource_map['dial/story']), loop.switch)
     loop.loop()
