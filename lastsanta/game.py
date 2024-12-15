@@ -14,6 +14,8 @@ from . import constants
 from . import physics
 from . import dialogue
 
+LETTERS_RESOURCE_PATH = 'dial/letters'
+
 
 @desper.event_handler('on_mouse_game_press')
 class DeliveryButton(desper.Controller):
@@ -172,6 +174,11 @@ class MainGameTransformer:
                             logic.Item(),
                             logic.GiftPart('base1'))
 
+        # Letter, retrieve text, image and build entity
+        letter_name = self.story_dialogue[dialogue.LETTER_NAME_DIALOGUE_VAR]
+        letter_dialogue_data = desper.resource_map[LETTERS_RESOURCE_PATH][letter_name]
+        letter_text = Dialogue(letter_dialogue_data).next().parse_text(
+            dialogue.LANG_ITA, self.story_dialogue.variables)
         letter_image = desper.resource_map['image/letter']
         world.create_entity(
             desper.Transform2D(),
@@ -179,7 +186,7 @@ class MainGameTransformer:
             NinePatch(letter_image,
                       width=letter_image.width, height=letter_image.height,
                       batch=main_batch, group=pyglet.graphics.Group(-10)),
-            pyglet.text.Label('This is super shape. ' * 12,
+            pyglet.text.Label(letter_text,
                               x=25, y=50,
                               anchor_y='bottom',
                               multiline=True,
