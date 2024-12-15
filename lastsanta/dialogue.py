@@ -65,14 +65,16 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 # Retrieve metadata for game world
                 gift = gifts.gifts[dialogue[GIFT_NAME_DIALOGUE_VAR]]
                 go_back = dialogue[BACK_DIALOGUE_VAR]
+                letter_name = dialogue[LETTER_NAME_DIALOGUE_VAR]
 
                 # Get back to the previous world vs create a new one
                 current_world = desper.default_loop.current_world
                 handle = desper.WorldHandle()
                 if go_back and current_world is not None:
                     _, handle = current_world.get(desper.WorldHandle)[0]
-                    # Apply gift transformer directly
+                    # Apply gift and letter transformer directly
                     game.GiftTransformer(gift)(handle, handle())
+                    game.LetterTransformer(letter_name, dialogue.variables)(handle, handle())
                     pass
 
                 # New world, build from scratch
@@ -80,6 +82,8 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                     handle.transform_functions.append(pdesper.init_graphics_transformer)
                     handle.transform_functions.append(game.MainGameTransformer(dialogue))
                     handle.transform_functions.append(game.GiftTransformer(gift))
+                    handle.transform_functions.append(game.LetterTransformer(letter_name,
+                                                                             dialogue.variables))
 
                 switch_function(handle)
                 stop = True

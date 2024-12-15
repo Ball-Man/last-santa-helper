@@ -174,28 +174,6 @@ class MainGameTransformer:
                             logic.Item(),
                             logic.GiftPart('base1'))
 
-        # Letter, retrieve text, image and build entity
-        letter_name = self.story_dialogue[dialogue.LETTER_NAME_DIALOGUE_VAR]
-        letter_dialogue_data = desper.resource_map[LETTERS_RESOURCE_PATH][letter_name]
-        letter_text = Dialogue(letter_dialogue_data).next().parse_text(
-            dialogue.LANG_ITA, self.story_dialogue.variables)
-        letter_image = desper.resource_map['image/letter']
-        world.create_entity(
-            desper.Transform2D(),
-            physics.Velocity(300),
-            NinePatch(letter_image,
-                      width=letter_image.width, height=letter_image.height,
-                      batch=main_batch, group=pyglet.graphics.Group(-10)),
-            pyglet.text.Label(letter_text,
-                              x=25, y=50,
-                              anchor_y='bottom',
-                              multiline=True,
-                              width=letter_image.width - 50,
-                              font_name='Super Shape', batch=main_batch,
-                              font_size=20, color=constants.FG_COLOR),
-            graphics.LetterSize(),
-            graphics.LetterPositionSync())
-
         # Add borders to the whole view
         world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero
         world.create_entity(physics.CollisionAxes(0., 0))                       # Vertical zero
@@ -214,3 +192,34 @@ class GiftTransformer:
     def __call__(self, _, world: desper.World):
         # Game elements and logic
         world.create_entity(logic.GiftConstraint(self.gift_constraint))
+
+
+class LetterTransformer:
+    """ """
+
+    def __init__(self, letter_name: str, variables):
+        self.letter_name = letter_name
+        self.variables = variables
+
+    def __call__(self, _, world: desper.World):
+        main_batch = pdesper.retrieve_batch(world)
+
+        letter_dialogue_data = desper.resource_map[LETTERS_RESOURCE_PATH][self.letter_name]
+        letter_text = Dialogue(letter_dialogue_data).next().parse_text(
+            dialogue.LANG_ITA, self.variables)
+        letter_image = desper.resource_map['image/letter']
+        world.create_entity(
+            desper.Transform2D(),
+            physics.Velocity(300),
+            NinePatch(letter_image,
+                      width=letter_image.width, height=letter_image.height,
+                      batch=main_batch, group=pyglet.graphics.Group(-10)),
+            pyglet.text.Label(letter_text,
+                              x=25, y=50,
+                              anchor_y='bottom',
+                              multiline=True,
+                              width=letter_image.width - 50,
+                              font_name='Super Shape', batch=main_batch,
+                              font_size=20, color=constants.FG_COLOR),
+            graphics.LetterSize(),
+            graphics.LetterPositionSync())
