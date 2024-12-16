@@ -57,6 +57,7 @@ def launch_gift(entity):
     # Remove collisions to make it go wooo, remove item to prevent dragging
     current_world.remove_component(entity, logic.Item)
     current_world.remove_component(entity, physics.CollisionRectangle)
+    current_world.remove_component(entity, physics.Velocity)
     current_world.add_component(entity, physics.Velocity(0, 1500.))
     # Make on top
     current_world.get_component(entity, Sprite).group = pyglet.graphics.Group(
