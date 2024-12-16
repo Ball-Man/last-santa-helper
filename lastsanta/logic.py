@@ -56,6 +56,7 @@ class ItemDragProcessor(desper.Processor):
     offset: Vec2 = Vec2()
     last_delta: Vec2 = Vec2()
     last_dt: float = 1.
+    pickup_position = desper.math.Vec2()
     _next_top_value: int = 1000
 
     def on_mouse_game_press(self, point: Vec2, buttons: int, mod):
@@ -114,7 +115,8 @@ class ItemDragProcessor(desper.Processor):
 
         # Save current item and mouse offset for dragging
         self.dragged = top_item
-        self.offset = point - top_item.get_component(desper.Transform2D).position
+        self.pickup_position = top_item.get_component(desper.Transform2D).position
+        self.offset = point - self.pickup_position
         top_item.remove_component(physics.Velocity)
 
         top_item.get_component(Item).hooked = None          # Unhook
@@ -135,7 +137,8 @@ class ItemDragProcessor(desper.Processor):
         # Save current item and mouse offset for dragging
         top_item = desper.controller(find_root(top_item.entity, top_item.world), top_item.world)
         self.dragged = top_item
-        self.offset = point - top_item.get_component(desper.Transform2D).position
+        self.pickup_position = top_item.get_component(desper.Transform2D).position
+        self.offset = point - self.pickup_position
         top_item.remove_component(physics.Velocity)
 
         # Bring on top globally
@@ -152,9 +155,21 @@ class ItemDragProcessor(desper.Processor):
         if self.dragged is None:        # Nothing to release
             return
 
+        dragged_transformed = self.dragged.get_component(desper.Transform2D)
+        dragged_position = dragged_transformed.position
+
+        # If colliding with some axis, snap back to original position
+        for _, axis in self.world.get(physics.CollisionAxes):
+            if physics.axis_collision(axis.pos, axis.index, self.dragged):
+                dragged_transformed.position = self.pickup_position
+
+                # Cleanup
+                self.dragged = None
+                self.offset = Vec2()
+                return
+
         # Handle item hooking
         hooked = False
-        dragged_position = self.dragged.get_component(desper.Transform2D).position
         dragged_item = self.dragged.get_component(Item)
         for entity, _ in self.world.get(physics.CollisionRectangle):
             if entity == self.dragged.entity:       # Don't self collide
