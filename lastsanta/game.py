@@ -1,4 +1,7 @@
 """Main game world utilities."""
+import random
+from collections.abc import Iterable
+
 import desper
 import pyglet_desper as pdesper
 import pyglet
@@ -133,8 +136,11 @@ class GiftPartProto(desper.Prototype):
 class MainGameTransformer:
     """Populate a game level."""
 
-    def __init__(self, story_dialogue: Dialogue):
+    def __init__(self, story_dialogue: Dialogue, plausible_parts: Iterable[str],
+                 number_of_generated: int = 50):
         self.story_dialogue = story_dialogue
+        self.plausible_parts = plausible_parts
+        self.number_of_generated = number_of_generated
 
     def __call__(self, handle, world: desper.World):
         main_batch = pdesper.retrieve_batch(world)
@@ -188,16 +194,18 @@ class MainGameTransformer:
         world.create_entity(DialogueManager(self.story_dialogue))
 
         # Objects
-        world.create_entity(*GiftPartProto(1500., 600., 'lightbulb', batch=main_batch,
-                                           group=pyglet.graphics.Group(1)))
-
-        world.create_entity(Sprite(desper.resource_map['image/toys/base1'], subpixel=True,
-                                   batch=main_batch, group=pyglet.graphics.Group(0)),
-                            desper.Transform2D((1600., 300.)),
-                            pdesper.SpriteSync(),
-                            physics.BBox(),
-                            logic.Item(),
-                            logic.GiftPart('base1'))
+        for index in range(self.number_of_generated):
+            # Sample part name and position
+            part_name = random.choice(self.plausible_parts)
+            part_image = (desper.resource_map[TOYS_RESOURCE_PATH]
+                                             [random.choice(self.plausible_parts)])
+            x = random.uniform(constants.VERTICAL_MAIN_SEPARATOR_X + 10,
+                               constants.VIEW_W - part_image.width - 10)
+            y = random.uniform(constants.HORIZONTAL_MAIN_SEPARATOR_Y - part_image.height - 10,
+                               part_image.height + 10)
+            world.create_entity(*GiftPartProto(x, y, part_name,
+                                               batch=main_batch,
+                                               group=pyglet.graphics.Group(index + 10)))
 
         # Add borders to the whole view
         world.create_entity(physics.CollisionAxes(0., 1))                       # Horizontal zero

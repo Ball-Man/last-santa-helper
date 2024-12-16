@@ -5,6 +5,8 @@ from .logic import JointConstraint, ItemSetConstraint, ItemsNumberConstraint
 LIGHTBULB = 'lightbulb'
 BASE1 = 'base1'
 
+CRITICAL_ITEMS = 'uranium', 'bullet'
+
 
 gifts = {
     'test':

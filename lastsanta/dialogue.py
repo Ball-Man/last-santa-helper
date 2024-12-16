@@ -67,6 +67,10 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 go_back = dialogue[BACK_DIALOGUE_VAR]
                 letter_name = dialogue[LETTER_NAME_DIALOGUE_VAR]
 
+                # Find set of gifts that may be generated
+                normal_items = set(desper.resource_map[game.TOYS_RESOURCE_PATH]
+                                         .handles.keys()).difference(gifts.CRITICAL_ITEMS)
+
                 # Get back to the previous world vs create a new one
                 current_world = desper.default_loop.current_world
                 handle = desper.WorldHandle()
@@ -80,7 +84,8 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 # New world, build from scratch
                 else:
                     handle.transform_functions.append(pdesper.init_graphics_transformer)
-                    handle.transform_functions.append(game.MainGameTransformer(dialogue))
+                    handle.transform_functions.append(
+                        game.MainGameTransformer(dialogue, tuple(normal_items)))
                     handle.transform_functions.append(game.GiftTransformer(gift))
                     handle.transform_functions.append(game.LetterTransformer(letter_name,
                                                                              dialogue.variables))
