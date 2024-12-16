@@ -60,17 +60,27 @@ class ItemDragProcessor(desper.Processor):
 
     def on_mouse_game_press(self, point: Vec2, buttons: int, mod):
         """Event: handle mouse."""
-        # On left button, grab entire composite objects
+        during_drag = self.dragged is not None
+
+        # On left button, if during a grab, attach object,
+        # if not during a grab, grab entire composite objects
         if pyglet.window.mouse.LEFT & buttons:
-            self.begin_drag_chain(point)
-        # On right button, grab single part
+            if during_drag:
+                self.end_drag()
+            else:
+                self.begin_drag_chain(point)
+        # On right button, if during a grab, attach object.
+        # If not during a grab, grab a single part.
         elif pyglet.window.mouse.RIGHT & buttons:
-            self.begin_drag(point)
+            if during_drag:
+                self.end_drag()
+            else:
+                self.begin_drag(point)
 
     def on_mouse_game_release(self, point: Vec2, buttons: int, mod):
         """Event: handle mouse."""
-        if pyglet.window.mouse.LEFT & buttons:
-            self.end_drag()
+        if (pyglet.window.mouse.LEFT | pyglet.window.mouse.RIGHT) & buttons:
+            self.end_drag(to_hook=False)
 
     def on_mouse_game_motion(self, mouse_position: Vec2, delta: Vec2):
         """If something is being dragged, drag it."""
@@ -137,7 +147,7 @@ class ItemDragProcessor(desper.Processor):
         self._next_top_value += 1
         return next_value
 
-    def end_drag(self):
+    def end_drag(self, to_hook=True):
         """If something is being dragged, release it."""
         if self.dragged is None:        # Nothing to release
             return
@@ -151,7 +161,9 @@ class ItemDragProcessor(desper.Processor):
                 continue
 
             # Hook things that overlap, prevent hooking into a loop
-            if (physics.rectangle_collision(self.dragged, desper.controller(entity, self.world))
+            if (to_hook
+                and physics.rectangle_collision(self.dragged,
+                                                desper.controller(entity, self.world))
                     and not itemchain_contains(entity, self.dragged.entity, self.world)):
                 dragged_item.hooked = entity
                 dragged_item.hook_offset = (self.world.get_component(entity,
