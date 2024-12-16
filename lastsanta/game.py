@@ -261,7 +261,6 @@ class LetterTransformer:
         letter_image = desper.resource_map['image/letter']
         world.create_entity(
             desper.Transform2D(),
-            physics.Velocity(300),
             NinePatch(letter_image,
                       width=letter_image.width, height=letter_image.height,
                       batch=main_batch, group=pyglet.graphics.Group(-10)),
