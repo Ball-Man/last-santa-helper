@@ -203,8 +203,14 @@ class HookedProcessor(desper.Processor):
             if item.hooked is None:
                 continue
 
+            # Delete entities part of a non-existing chain
+            if not self.world.entity_exists(item.hooked):
+                self.world.delete_entity(entity)
+                continue
+
             # Adjust position according to parent
             transform = self.world.get_component(entity, desper.Transform2D)
+
             parent_transform = self.world.get_component(item.hooked, desper.Transform2D)
             transform.position = parent_transform.position - item.hook_offset
 
@@ -221,7 +227,7 @@ class GiftPart:
     name: str
 
 
-def find_major_gift(world: desper.World) -> list[GiftPart]:
+def find_major_gift(world: desper.World) -> tuple[int, list[GiftPart]]:
     """Return the major gift from the world."""
     # Build all gifts in the scene
     gifts = {}
@@ -245,7 +251,7 @@ def find_major_gift(world: desper.World) -> list[GiftPart]:
         gifts.setdefault(last_entity, [])
         gifts[last_entity] += current_chain
 
-    return max(gifts.values(), key=len)
+    return max(gifts.items(), key=lambda kv: len(kv[1]))
 
 
 class Constraint:

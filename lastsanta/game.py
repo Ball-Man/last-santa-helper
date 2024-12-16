@@ -38,13 +38,31 @@ class DeliveryButton(desper.Controller):
             return
 
         # Retrive gift and constraint
-        major_gift = logic.find_major_gift(self.world)
+        major_entity, major_gift = logic.find_major_gift(self.world)
         constraint_entity, constraint_container = gift_constraint_query[0]
         constraint: logic.Constraint = constraint_container.constraint
 
         self.world.delete_entity(constraint_entity)
 
+        # Launch gift
+        launch_gift(major_entity)
+
         self.world.dispatch('on_delivery', constraint.check(major_gift))
+
+
+@desper.coroutine
+def launch_gift(entity):
+    """Launch given gift entity and delete it briefly after."""
+    current_world = desper.default_loop.current_world
+    # Remove collisions to make it go wooo, remove item to prevent dragging
+    current_world.remove_component(entity, logic.Item)
+    current_world.remove_component(entity, physics.CollisionRectangle)
+    current_world.add_component(entity, physics.Velocity(0, 1500.))
+    # Make on top
+    current_world.get_component(entity, Sprite).group = pyglet.graphics.Group(
+        logic.get_next_top_value(current_world))
+    yield 3
+    current_world.delete_entity(entity)
 
 
 @desper.event_handler('on_delivery', 'on_update')
