@@ -219,8 +219,8 @@ class MainGameTransformer:
                                              [random.choice(self.plausible_parts)])
             x = random.uniform(constants.VERTICAL_MAIN_SEPARATOR_X + 10,
                                constants.VIEW_W - part_image.width - 10)
-            y = random.uniform(constants.HORIZONTAL_MAIN_SEPARATOR_Y - part_image.height - 10,
-                               part_image.height + 10)
+            y = random.uniform(10,
+                               constants.HORIZONTAL_MAIN_SEPARATOR_Y - part_image.height - 200)
             world.create_entity(*GiftPartProto(x, y, part_name,
                                                batch=main_batch,
                                                group=pyglet.graphics.Group(index + 10)))
