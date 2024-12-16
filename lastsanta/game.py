@@ -15,6 +15,7 @@ from . import physics
 from . import dialogue
 
 LETTERS_RESOURCE_PATH = 'dial/letters'
+TOYS_RESOURCE_PATH = 'image/toys'
 
 
 @desper.event_handler('on_mouse_game_press')
@@ -99,6 +100,36 @@ class DialogueManager:
         dialogue.continue_dialogue(self.dialogue)
 
 
+class GiftPartProto(desper.Prototype):
+    """Prototype for gift parts.
+
+    Gift part category and sprite are selected automatically based on
+    the given name.
+    """
+    component_types = (Sprite, desper.Transform2D, pdesper.SpriteSync, physics.BBox, logic.Item,
+                       logic.GiftPart)
+
+    def __init__(self, x, y, sprite_name: str, batch: pyglet.graphics.Batch,
+                 group: pyglet.graphics.Group | None = None, z=0):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.sprite_name = sprite_name
+        self.batch = batch
+        self.group = group
+
+    def init_Sprite(self, component_type):
+        return component_type(desper.resource_map[TOYS_RESOURCE_PATH][self.sprite_name],
+                              z=self.z,
+                              subpixel=True, batch=self.batch, group=self.group)
+
+    def init_Transform2D(self, component_type):
+        return component_type((self.x, self.y))
+
+    def init_GiftPart(self, component_type):
+        return component_type(self.sprite_name)
+
+
 class MainGameTransformer:
     """Populate a game level."""
 
@@ -157,14 +188,8 @@ class MainGameTransformer:
         world.create_entity(DialogueManager(self.story_dialogue))
 
         # Objects
-        world.create_entity(Sprite(desper.resource_map['image/toys/lightbulb'], subpixel=True,
-                                   batch=main_batch, group=pyglet.graphics.Group(1)),
-                            desper.Transform2D((1500., 500.)),
-                            pdesper.SpriteSync(),
-                            physics.BBox(),
-                            physics.Velocity(-300, -300),
-                            logic.Item(),
-                            logic.GiftPart('lightbulb'))
+        world.create_entity(*GiftPartProto(1500., 600., 'lightbulb', batch=main_batch,
+                                           group=pyglet.graphics.Group(1)))
 
         world.create_entity(Sprite(desper.resource_map['image/toys/base1'], subpixel=True,
                                    batch=main_batch, group=pyglet.graphics.Group(0)),
