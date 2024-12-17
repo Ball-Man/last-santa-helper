@@ -150,8 +150,12 @@ class DialogueManager:
         self.transition_time = transition_time
 
     @desper.coroutine
-    def on_delivery(self, *args):
+    def on_delivery(self, constraint_check):
         """Wait a bit and continue."""
+        self.dialogue.variables[dialogue.ERRORS_VAR] = 0
+        if constraint_check:
+            self.dialogue.variables[dialogue.ERRORS_VAR] = constraint_check[0]
+
         yield self.transition_time
         dialogue.continue_dialogue(self.dialogue)
 

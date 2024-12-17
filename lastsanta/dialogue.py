@@ -17,6 +17,7 @@ GIFT_NAME_DIALOGUE_VAR = 'gift_name'
 LETTER_NAME_DIALOGUE_VAR = 'letter_name'
 LETTER_FONT_NAME_VAR = 'letter_font_name'
 NUMBER_OF_GENERATED_VAR = 'number_of_generated'
+ERRORS_VAR = 'errors'
 BACK_DIALOGUE_VAR = 'back'
 
 
