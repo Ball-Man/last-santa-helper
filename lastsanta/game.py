@@ -252,8 +252,7 @@ class MainGameTransformer:
         for index in range(self.number_of_generated):
             # Sample part name and position
             part_name = random.choice(self.plausible_parts)
-            part_image = (desper.resource_map[TOYS_RESOURCE_PATH]
-                                             [random.choice(self.plausible_parts)])
+            part_image = desper.resource_map[TOYS_RESOURCE_PATH][part_name]
             x = random.uniform(constants.VERTICAL_MAIN_SEPARATOR_X + 10,
                                constants.VIEW_W - part_image.width - 10)
             y = random.uniform(10,
