@@ -120,6 +120,28 @@ class TheHandler(desper.Controller):
 
 
 @desper.event_handler('on_delivery')
+class TheLetter(desper.Controller):
+    """Slide the letter in and out of the scene."""
+    slider = desper.ComponentReference(Slider)
+
+    def on_add(self, *args):
+        """Slide in as soon as created."""
+        super().on_add(*args)
+        self.slide_in()
+
+    @desper.coroutine
+    def slide_in(self, *args):
+        """Wait a second and slide in."""
+        yield 1
+        yield from self.slider.lerp_to_target(self.slider.target_x)
+
+    @desper.coroutine
+    def on_delivery(self, *args):
+        """On delivery event, slide out."""
+        yield from self.slider.lerp_to_target(self.slider.start_pos)
+
+
+@desper.event_handler('on_delivery')
 class DialogueManager:
     """Continue dialogue on delivery."""
 
@@ -275,7 +297,7 @@ class LetterTransformer:
             dialogue.LANG_ITA, self.variables)
         letter_image = desper.resource_map['image/letter']
         world.create_entity(
-            desper.Transform2D(),
+            desper.Transform2D((-letter_image.width - 50, 20)),
             NinePatch(letter_image,
                       width=letter_image.width, height=letter_image.height,
                       batch=main_batch, group=pyglet.graphics.Group(-10)),
@@ -287,4 +309,6 @@ class LetterTransformer:
                               font_name='Super Shape', batch=main_batch,
                               font_size=20, color=constants.FG_COLOR),
             graphics.LetterSize(),
-            graphics.LetterPositionSync())
+            graphics.LetterPositionSync(),
+            Slider(20),
+            TheLetter())
