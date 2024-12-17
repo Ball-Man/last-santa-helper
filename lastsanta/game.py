@@ -271,14 +271,37 @@ class MainGameTransformer:
 
 
 class GiftTransformer:
-    """Add given gift constraint to the world + TODO: some items."""
+    """Add given gift constraint to the world + add some items."""
 
     def __init__(self, gift_constraint):
         self.gift_constraint = gift_constraint
 
     def __call__(self, _, world: desper.World):
+        main_batch = pdesper.retrieve_batch(world)
+
         # Game elements and logic
         world.create_entity(logic.GiftConstraint(self.gift_constraint))
+
+        # Find missing items for the constriant and create some of them
+        # to make sure it is satisfiable.
+        full_gift = [gift_part for _, gift_part in world.get(logic.GiftPart)]
+
+        for reason_constraint in self.gift_constraint.check(full_gift)[1]:
+            if type(reason_constraint) is logic.ItemSetConstraint:
+                for _ in range(reason_constraint.count):
+                    # Sample part name and position
+                    part_name = random.choice(tuple(reason_constraint.allowed_set))
+                    part_image = desper.resource_map[TOYS_RESOURCE_PATH][part_name]
+                    x = random.uniform(constants.VERTICAL_MAIN_SEPARATOR_X + 10,
+                                       constants.VIEW_W - part_image.width - 10)
+                    y = random.uniform(10,
+                                       constants.HORIZONTAL_MAIN_SEPARATOR_Y
+                                       - part_image.height - 200)
+                    group_order = logic.get_next_top_value(world)
+                    world.create_entity(
+                        *GiftPartProto(x, y, part_name,
+                                       batch=main_batch,
+                                       group=pyglet.graphics.Group(group_order)))
 
 
 class LetterTransformer:
