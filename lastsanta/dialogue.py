@@ -48,7 +48,9 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 current_world = desper.default_loop.current_world
                 passthrough_handle = None
                 if current_world is not None:
-                    _, passthrough_handle = current_world.get(desper.WorldHandle)[0]
+                    passthrough_query = current_world.get(desper.WorldHandle)
+                    if passthrough_query:
+                        _, passthrough_handle = passthrough_query[0]
 
                 new_handle = desper.WorldHandle()
                 new_handle.transform_functions.append(pdesper.init_graphics_transformer)
