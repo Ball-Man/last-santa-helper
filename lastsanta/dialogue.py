@@ -29,10 +29,7 @@ class DialogueHandle(desper.Handle[DialogueData]):
 
 
 def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, language=LANG_ITA):
-    """Get next dialogue node, build a world accoringly and switch.
-
-    TODO
-    """
+    """Get next dialogue node, build a world accoringly and switch."""
     stop = False
     while not stop:
         new_node = dialogue.next()
