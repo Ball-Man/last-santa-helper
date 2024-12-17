@@ -66,9 +66,9 @@ def launch_gift(entity):
     current_world.delete_entity(entity)
 
 
-@desper.event_handler('on_delivery', 'on_update')
-class TheHandler(desper.Controller):
-    """Move the handler in and out of the scene."""
+@desper.event_handler('on_update')
+class Slider(desper.Controller):
+    """Move object in and out of the scene."""
     transform = desper.ComponentReference(desper.Transform2D)
 
     def __init__(self, target_x=1200, transition_time=1.):
@@ -83,7 +83,7 @@ class TheHandler(desper.Controller):
     def on_update(self, dt):
         self.dt = pmath.clamp(dt, constants.MIN_DT, constants.MAX_DT)
 
-    def _lerp_to_target(self, target_x):
+    def lerp_to_target(self, target_x):
         """Generator, can be used as coroutien to lerp to a target."""
         target_vec = desper.math.Vec2(target_x, self.transform.position.y)
 
@@ -95,16 +95,28 @@ class TheHandler(desper.Controller):
             yield
 
     @desper.coroutine
-    def on_delivery(self, *args):
-        # A bit funky, we need dt somehow
-        self.world.add_processor(desper.OnUpdateProcessor(), -1)
-        yield 0.1
-
+    def slide_in(self):
         yield from self._lerp_to_target(self.target_x)          # Transition in
+
+    @desper.coroutine
+    def slide_out(self):
+        yield from self._lerp_to_target(self.start_pos)              # Transition out
+
+
+@desper.event_handler('on_delivery')
+class TheHandler(desper.Controller):
+    """Slide the handler in and out of the scene."""
+    slider = desper.ComponentReference(Slider)
+
+    @desper.coroutine
+    def on_delivery(self, *args):
+        yield from self.slider.lerp_to_target(self.slider.target_x)
+
         # Wait a sec. Here, some other component shall switch to the
         # dialogue or whatever.
         yield 2
-        yield from self._lerp_to_target(self.start_pos)              # Transition out
+
+        yield from self.slider.lerp_to_target(self.slider.start_pos)
 
 
 @desper.event_handler('on_delivery')
@@ -165,6 +177,7 @@ class MainGameTransformer:
         main_batch = pdesper.retrieve_batch(world)
 
         # General control
+        world.add_processor(desper.OnUpdateProcessor())
         world.add_processor(desper.CoroutineProcessor())
         world.add_processor(logic.ItemDragProcessor())
         world.create_entity(physics.MouseToGameSpace())
@@ -201,6 +214,7 @@ class MainGameTransformer:
                             desper.Transform2D((constants.VIEW_W + 400,
                                                 constants.HORIZONTAL_MAIN_SEPARATOR_Y)),
                             pdesper.SpriteSync(),
+                            Slider(),
                             TheHandler())
 
         # Delivery button
