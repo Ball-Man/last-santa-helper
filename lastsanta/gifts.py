@@ -13,5 +13,6 @@ gifts = {
         JointConstraint(
             ItemSetConstraint(1, BASE1),
             ItemSetConstraint(1, LIGHTBULB)
-        )
+        ),
+    'tutorial1': ItemSetConstraint(1, LIGHTBULB)
 }
