@@ -227,7 +227,12 @@ class HookedProcessor(desper.Processor):
             transform = self.world.get_component(entity, desper.Transform2D)
 
             parent_transform = self.world.get_component(item.hooked, desper.Transform2D)
+            parent_gift_part = self.world.get_component(item.hooked, GiftPart)
             transform.position = parent_transform.position - item.hook_offset
+
+            # If parent has no gift part, remove part as well
+            if parent_gift_part is None:
+                self.world.remove_component(entity, GiftPart)
 
             # Check ordering
             sprite = self.world.get_component(entity, Sprite)
