@@ -55,7 +55,7 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 new_handle = desper.WorldHandle()
                 new_handle.transform_functions.append(pdesper.init_graphics_transformer)
                 new_handle.transform_functions.append(
-                    DialogueWorldTransformer(new_node.text.get(language, '-- no text')))
+                    DialogueWorldTransformer(new_node.parse_text(language, dialogue.variables)))
                 new_handle.transform_functions.append(
                     DialogueMachineTransfomer(dialogue, passthrough_handle))
                 new_handle.transform_functions.append(hotkeys.hotkeys_transformer)
