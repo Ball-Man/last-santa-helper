@@ -16,6 +16,7 @@ LANG_ITA = 'ITA'
 GIFT_NAME_DIALOGUE_VAR = 'gift_name'
 LETTER_NAME_DIALOGUE_VAR = 'letter_name'
 LETTER_FONT_NAME_VAR = 'letter_font_name'
+NUMBER_OF_GENERATED_VAR = 'number_of_generated'
 BACK_DIALOGUE_VAR = 'back'
 
 
@@ -69,6 +70,7 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 go_back = dialogue[BACK_DIALOGUE_VAR]
                 letter_name = dialogue[LETTER_NAME_DIALOGUE_VAR]
                 letter_font_name = dialogue[LETTER_FONT_NAME_VAR]
+                number_of_generated = dialogue[NUMBER_OF_GENERATED_VAR]
 
                 # Find set of gifts that may be generated
                 normal_items = set(desper.resource_map[game.TOYS_RESOURCE_PATH]
@@ -90,7 +92,8 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 else:
                     handle.transform_functions.append(pdesper.init_graphics_transformer)
                     handle.transform_functions.append(
-                        game.MainGameTransformer(dialogue, tuple(normal_items)))
+                        game.MainGameTransformer(dialogue, tuple(normal_items),
+                                                 number_of_generated))
                     handle.transform_functions.append(game.GiftTransformer(gift))
                     handle.transform_functions.append(letter_transformer)
                     handle.transform_functions.append(hotkeys.hotkeys_transformer)
