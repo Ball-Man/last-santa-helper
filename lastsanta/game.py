@@ -285,8 +285,9 @@ class GiftTransformer:
 class LetterTransformer:
     """ """
 
-    def __init__(self, letter_name: str, variables):
+    def __init__(self, letter_name: str, font_name: str, variables):
         self.letter_name = letter_name
+        self.font_name = font_name
         self.variables = variables
 
     def __call__(self, _, world: desper.World):
@@ -306,7 +307,7 @@ class LetterTransformer:
                               anchor_y='bottom',
                               multiline=True,
                               width=letter_image.width - 50,
-                              font_name='Super Shape', batch=main_batch,
+                              font_name=self.font_name, batch=main_batch,
                               font_size=20, color=constants.FG_COLOR),
             graphics.LetterSize(),
             graphics.LetterPositionSync(),

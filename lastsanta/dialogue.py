@@ -15,6 +15,7 @@ from . import hotkeys
 LANG_ITA = 'ITA'
 GIFT_NAME_DIALOGUE_VAR = 'gift_name'
 LETTER_NAME_DIALOGUE_VAR = 'letter_name'
+LETTER_FONT_NAME_VAR = 'letter_font_name'
 BACK_DIALOGUE_VAR = 'back'
 
 
@@ -65,10 +66,14 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                 gift = gifts.gifts[dialogue[GIFT_NAME_DIALOGUE_VAR]]
                 go_back = dialogue[BACK_DIALOGUE_VAR]
                 letter_name = dialogue[LETTER_NAME_DIALOGUE_VAR]
+                letter_font_name = dialogue[LETTER_FONT_NAME_VAR]
 
                 # Find set of gifts that may be generated
                 normal_items = set(desper.resource_map[game.TOYS_RESOURCE_PATH]
                                          .handles.keys()).difference(gifts.CRITICAL_ITEMS)
+
+                letter_transformer = game.LetterTransformer(letter_name, letter_font_name,
+                                                            dialogue.variables)
 
                 # Get back to the previous world vs create a new one
                 current_world = desper.default_loop.current_world
@@ -77,8 +82,7 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                     _, handle = current_world.get(desper.WorldHandle)[0]
                     # Apply gift and letter transformer directly
                     game.GiftTransformer(gift)(handle, handle())
-                    game.LetterTransformer(letter_name, dialogue.variables)(handle, handle())
-                    pass
+                    letter_transformer(handle, handle())
 
                 # New world, build from scratch
                 else:
@@ -86,8 +90,7 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                     handle.transform_functions.append(
                         game.MainGameTransformer(dialogue, tuple(normal_items)))
                     handle.transform_functions.append(game.GiftTransformer(gift))
-                    handle.transform_functions.append(game.LetterTransformer(letter_name,
-                                                                             dialogue.variables))
+                    handle.transform_functions.append(letter_transformer)
                     handle.transform_functions.append(hotkeys.hotkeys_transformer)
 
                 switch_function(handle)
