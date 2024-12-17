@@ -10,6 +10,7 @@ from . import physics
 from . import graphics
 from . import game
 from . import gifts
+from . import hotkeys
 
 LANG_ITA = 'ITA'
 GIFT_NAME_DIALOGUE_VAR = 'gift_name'
@@ -54,6 +55,7 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                     DialogueWorldTransformer(new_node.text.get(language, '-- no text')))
                 new_handle.transform_functions.append(
                     DialogueMachineTransfomer(dialogue, passthrough_handle))
+                new_handle.transform_functions.append(hotkeys.hotkeys_transformer)
                 switch_function(new_handle)
                 stop = True
 
@@ -86,6 +88,7 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
                     handle.transform_functions.append(game.GiftTransformer(gift))
                     handle.transform_functions.append(game.LetterTransformer(letter_name,
                                                                              dialogue.variables))
+                    handle.transform_functions.append(hotkeys.hotkeys_transformer)
 
                 switch_function(handle)
                 stop = True

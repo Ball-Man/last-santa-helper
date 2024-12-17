@@ -13,7 +13,7 @@ loop = pdesper.Loop(interval)
 desper.default_loop = loop
 window = Window(960, 540)
 loop.connect_window_events(window, 'on_draw', 'on_mouse_press', 'on_mouse_release', 'on_resize',
-                           'on_mouse_motion', 'on_mouse_drag')
+                           'on_mouse_motion', 'on_mouse_drag', 'on_key_press')
 
 
 def main():
