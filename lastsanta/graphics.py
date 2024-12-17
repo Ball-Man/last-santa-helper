@@ -90,3 +90,10 @@ class LetterPositionSync(pdesper.PositionSync2D):
         sprite.position = (*new_position, sprite.z)
         label = self.label
         label.position = (*(new_position + self.label_position_offset), label.z)
+
+    def on_remove(self, entity, world: desper.World):
+        """Clear vertices from memory."""
+        if not self.deleted:
+            self.deleted = True
+            self.get_component(pyglet.text.Label).delete()
+            self.get_component(pyglet.gui.NinePatch).delete()

@@ -320,6 +320,10 @@ class LetterTransformer:
     def __call__(self, _, world: desper.World):
         main_batch = pdesper.retrieve_batch(world)
 
+        # Remove previously existing letters to prevent weird overlaps
+        for old_letter_entity, _ in world.get(TheLetter):
+            world.delete_entity(old_letter_entity)
+
         letter_dialogue_data = desper.resource_map[LETTERS_RESOURCE_PATH][self.letter_name]
         letter_text = Dialogue(letter_dialogue_data).next().parse_text(
             dialogue.LANG_ITA, self.variables)
