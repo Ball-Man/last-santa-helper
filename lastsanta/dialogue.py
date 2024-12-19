@@ -41,8 +41,9 @@ def continue_dialogue(dialogue: Dialogue, switch_function=desper.switch, languag
         new_node = dialogue.next()
 
         match new_node:
+            # If the end is reached, restart
             case None:
-                print('End of dialogue file, what do we do?')
+                continue_dialogue(Dialogue(desper.resource_map['dial/story']), language=language)
                 stop = True
 
             # If it's a dialogue line, build a new world handle and
