@@ -153,9 +153,15 @@ class DialogueManager:
     @desper.coroutine
     def on_delivery(self, constraint_check):
         """Wait a bit and continue."""
-        self.dialogue.variables[dialogue.ERRORS_VAR] = 0
+        # Keep track of errors and update hp
+        errors = 0
         if constraint_check:
-            self.dialogue.variables[dialogue.ERRORS_VAR] = constraint_check[0]
+            errors = constraint_check[0]
+        self.dialogue.variables[dialogue.ERRORS_VAR] = errors
+
+        # Step error as such: -1 hp for up to two errors. -2 hp for more
+        if not self.dialogue.variables[dialogue.TUTORIAL_VAR]:
+            self.dialogue.variables[dialogue.HP_VAR] -= (errors > 0) + (errors > 2)
 
         yield self.transition_time
         dialogue.continue_dialogue(self.dialogue)

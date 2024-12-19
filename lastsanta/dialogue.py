@@ -19,6 +19,8 @@ LETTER_FONT_NAME_VAR = 'letter_font_name'
 NUMBER_OF_GENERATED_VAR = 'number_of_generated'
 ERRORS_VAR = 'errors'
 BACK_DIALOGUE_VAR = 'back'
+HP_VAR = 'hp'
+TUTORIAL_VAR = 'tutorial'
 
 
 class DialogueHandle(desper.Handle[DialogueData]):
