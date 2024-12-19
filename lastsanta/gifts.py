@@ -8,6 +8,7 @@ BASES = 'base1', 'base2', 'base3'
 WHEEL = 'wheel'
 DRAGON_HEAD = 'dragon_head'
 HUMAN_PARTS = 'arm', 'leg', 'eye'
+BATTERY = 'battery'
 
 CRITICAL_ITEMS = 'uranium', 'bullet'
 
@@ -35,5 +36,10 @@ gifts = {
             ItemSetConstraint(1, DRAGON_HEAD),
             ItemSetConstraint(2, *HUMAN_PARTS)
         ),
-    'carpet': ItemSetConstraint(3, *BASES)
+    'carpet': ItemSetConstraint(3, *BASES),
+    'car': JointConstraint(
+            ItemSetConstraint(1, *BASES),
+            ItemSetConstraint(2, WHEEL),
+            ItemSetConstraint(2, BATTERY)
+        ),
 }
