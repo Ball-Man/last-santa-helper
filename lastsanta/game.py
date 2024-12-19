@@ -164,6 +164,10 @@ class DialogueManager:
             self.dialogue.variables[dialogue.HP_VAR] -= (errors > 0) + (errors > 2)
 
         yield self.transition_time
+
+        if self.dialogue.variables[dialogue.HP_VAR] <= 0:
+            dialogue.continue_dialogue(Dialogue(desper.resource_map['dial/gameover']))
+            return
         dialogue.continue_dialogue(self.dialogue)
 
 
