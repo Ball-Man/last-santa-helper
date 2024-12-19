@@ -227,13 +227,15 @@ class MainGameTransformer:
         world.create_entity(Line(0, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                                  constants.VIEW_W, constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                                  batch=main_batch, color=constants.FG_COLOR,
-                                 width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
+                                 width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH,
+                                 group=pyglet.graphics.Group(-100)),
                             physics.CollisionAxes(constants.HORIZONTAL_MAIN_SEPARATOR_Y, 1))
         world.create_entity(Line(constants.VERTICAL_MAIN_SEPARATOR_X, 0,
                                  constants.VERTICAL_MAIN_SEPARATOR_X,
                                  constants.HORIZONTAL_MAIN_SEPARATOR_Y,
                                  batch=main_batch, color=constants.FG_COLOR,
-                                 width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH),
+                                 width=constants.HORIZONTAL_MAIN_SEPARATOR_WIDTH,
+                                 group=pyglet.graphics.Group(-100)),
                             physics.CollisionAxes(constants.VERTICAL_MAIN_SEPARATOR_X, 0))
 
         # Handler coming in and out
