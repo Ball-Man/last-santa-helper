@@ -159,14 +159,22 @@ class ItemDragProcessor(desper.Processor):
         dragged_position = dragged_transformed.position
 
         # If colliding with some axis, snap back to original position
+        snap = False
         for _, axis in self.world.get(physics.CollisionAxes):
-            if physics.axis_collision(axis.pos, axis.index, self.dragged):
-                dragged_transformed.position = self.pickup_position
+            snap |= physics.axis_collision(axis.pos, axis.index, self.dragged)
 
-                # Cleanup
-                self.dragged = None
-                self.offset = Vec2()
-                return
+        # HARDCODE: also snap if item is above the layout or outside view
+        snap |= (dragged_position.y >= constants.HORIZONTAL_MAIN_SEPARATOR_Y
+                 or dragged_position.y < 0 or dragged_position.x > constants.VIEW_W
+                 or dragged_position.x < 0)
+
+        if snap:
+            dragged_transformed.position = self.pickup_position
+
+            # Cleanup
+            self.dragged = None
+            self.offset = Vec2()
+            return
 
         # Handle item hooking
         hooked = False
