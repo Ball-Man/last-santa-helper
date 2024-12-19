@@ -5,6 +5,8 @@ from .logic import JointConstraint, ItemSetConstraint, ItemsNumberConstraint
 LIGHTBULB = 'lightbulb'
 BASE1 = 'base1'
 WHEEL = 'wheel'
+DRAGON_HEAD = 'dragon_head'
+HUMAN_PARTS = 'arm', 'leg', 'eye'
 
 CRITICAL_ITEMS = 'uranium', 'bullet'
 
@@ -27,4 +29,9 @@ gifts = {
             ItemSetConstraint(1, WHEEL),
             ItemSetConstraint(1, LIGHTBULB)
         ),
+    'dragon_head':
+        JointConstraint(
+            ItemSetConstraint(1, DRAGON_HEAD),
+            ItemSetConstraint(2, *HUMAN_PARTS)
+        )
 }
