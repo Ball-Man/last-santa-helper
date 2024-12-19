@@ -14,6 +14,7 @@ EYE = 'eye'
 LEG = 'leg'
 URANIUM = 'uranium'
 SPRING = 'spring'
+BULLET = 'bullet'
 
 CRITICAL_ITEMS = 'uranium', 'bullet'
 
@@ -55,5 +56,9 @@ gifts = {
     'uranium': JointConstraint(
             ItemSetConstraint(1, URANIUM),
             ItemSetConstraint(1, SPRING, LEG, WING)
+        ),
+    'bullet': JointConstraint(
+            ItemSetConstraint(1, BULLET),
+            ItemSetConstraint(1, BASE1)
         ),
 }
