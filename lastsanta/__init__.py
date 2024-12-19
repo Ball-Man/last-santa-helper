@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+
 import desper
 import pyglet_desper as pdesper
 from pyglet.window import Window
@@ -18,6 +21,11 @@ loop.connect_window_events(window, 'on_draw', 'on_mouse_press', 'on_mouse_releas
 
 def main():
     glClearColor(*(constants.BG_COLOR / 255))
+
+    # Change root of resources if the app is frozen
+    if getattr(sys, 'frozen', False):
+        # The application is frozen
+        pdesper.resource_populator.root = str(Path(sys.executable).parent / 'resources')
 
     pdesper.resource_populator.add_rule(constants.DIAL_RESOURCES_PATH, dialogue.DialogueHandle)
     pdesper.resource_populator(desper.resource_map, trim_extensions=True)
