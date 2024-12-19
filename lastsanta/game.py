@@ -247,7 +247,7 @@ class MainGameTransformer:
                             TheHandler())
 
         # Delivery button
-        world.create_entity(Sprite(desper.resource_map['image/toys/base1'], batch=main_batch),
+        world.create_entity(Sprite(desper.resource_map['image/delivery'], batch=main_batch),
                             desper.Transform2D((300, constants.VIEW_H - 200)),
                             pdesper.SpriteSync(),
                             physics.BBox(),
