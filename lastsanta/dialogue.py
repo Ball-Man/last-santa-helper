@@ -30,7 +30,7 @@ class DialogueHandle(desper.Handle[DialogueData]):
         self.filename = filename
 
     def load(self) -> DialogueData:
-        with open(self.filename) as fin:
+        with open(self.filename, encoding='utf8') as fin:
             return from_file(fin)
 
 
