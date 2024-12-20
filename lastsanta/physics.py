@@ -195,11 +195,17 @@ class RectangleToAxisProcessor(desper.Processor):
                     velocity, norm_velocity, axes)
 
             # Change velocity (bounce)
+            bounce = False
             if reflection.x > 0.1:
+                bounce = True
                 velocity.x = -velocity.x
 
             if reflection.y > 0.1:
+                bounce = True
                 velocity.y = -velocity.y
+
+            if bounce:
+                self.world.dispatch('on_bounce')
 
     def _resolve(self, dt: float, coll_rectangle: CollisionRectangle,
                  dynamic_transform: desper.Transform2D,
