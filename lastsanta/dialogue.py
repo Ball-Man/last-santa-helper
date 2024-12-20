@@ -150,6 +150,7 @@ class DialogueMachineTransfomer:
         self.previous = previous
 
     def __call__(self, _, world: desper.World):
+        world.add_processor(physics.DispatchLaterProcessor(), -1)
         world.create_entity(physics.MouseToGameSpace())
         world.create_entity(DialogueTriggerOnClick(self.dialogue))
         world.create_entity(self.previous)

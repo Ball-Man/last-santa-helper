@@ -17,10 +17,29 @@ def _point_to_gamespace(x, y, viewport, gameport) -> Vec2:
                 (y - viewport[1]) * (gameport[1] / viewport[3]))
 
 
+class DispatchLaterProcessor(desper.Processor):
+    """Dispatch the given events on process."""
+
+    def __init__(self):
+        self._queue = []
+
+    def dispatch(self, *event_parameters):
+        """Schedule an event to be dispatched later."""
+        self._queue.append(event_parameters)
+
+    def process(self, _):
+        old_queue = self._queue
+        self._queue = []
+
+        for event_tuple in old_queue:
+            self.world.dispatch(*event_tuple)
+
+
 @desper.event_handler('on_mouse_press', 'on_mouse_release')
 @desper.event_handler('on_mouse_motion', on_mouse_drag='on_mouse_motion')
 class MouseToGameSpace(desper.Controller):
     """Map mouse events from window space to game space."""
+    dispatch_later = desper.ProcessorReference(DispatchLaterProcessor)
 
     def __init__(self):
         self.window: Window = next(iter(pyglet.app.windows))
@@ -35,16 +54,18 @@ class MouseToGameSpace(desper.Controller):
                                                        (constants.VIEW_W, constants.VIEW_H)))
 
     def on_mouse_press(self, x, y, buttons, mod):
-        return self.world.dispatch('on_mouse_game_press',
-                                   _point_to_gamespace(x, y, self.window.viewport,
-                                                       (constants.VIEW_W, constants.VIEW_H)),
-                                   buttons, mod)
+        return self.dispatch_later.dispatch('on_mouse_game_press',
+                                            _point_to_gamespace(x, y, self.window.viewport,
+                                                                (constants.VIEW_W,
+                                                                 constants.VIEW_H)),
+                                            buttons, mod)
 
     def on_mouse_release(self, x, y, buttons, mod):
-        return self.world.dispatch('on_mouse_game_release',
-                                   _point_to_gamespace(x, y, self.window.viewport,
-                                                       (constants.VIEW_W, constants.VIEW_H)),
-                                   buttons, mod)
+        return self.dispatch_later.dispatch('on_mouse_game_release',
+                                            _point_to_gamespace(x, y, self.window.viewport,
+                                                                (constants.VIEW_W,
+                                                                 constants.VIEW_H)),
+                                            buttons, mod)
 
 
 @dataclass

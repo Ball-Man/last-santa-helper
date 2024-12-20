@@ -217,6 +217,7 @@ class MainGameTransformer:
         world.add_processor(desper.OnUpdateProcessor())
         world.add_processor(desper.CoroutineProcessor())
         world.add_processor(logic.ItemDragProcessor())
+        world.add_processor(physics.DispatchLaterProcessor(), -1)
         world.create_entity(physics.MouseToGameSpace())
         # Add self handle as an entity, used later for retrieval
         world.create_entity(handle)
