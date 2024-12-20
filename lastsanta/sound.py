@@ -5,6 +5,7 @@ import desper
 from ddesigner.default_model import ExecuteNode
 
 DELIVERY_BUTTON_SFX = 'media/button'
+PAPER_OUT_SFX = 'media/paper_out'
 STEPS_IN_SFX = 'media/steps_in'
 VOICE_SFX_FOLDER = 'media/voice'
 HIT_SFXS = 'media/hits/hit1', 'media/hits/hit2'
@@ -31,7 +32,7 @@ class SFXManager:
         if self.mute:
             return
 
-        desper.resource_map[DELIVERY_BUTTON_SFX].play()
+        desper.resource_map[PAPER_OUT_SFX].play()
 
         yield 0.2
         desper.resource_map[STEPS_IN_SFX].play()
