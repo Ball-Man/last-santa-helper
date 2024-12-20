@@ -23,7 +23,7 @@ class SFXManager:
 
         desper.resource_map[DELIVERY_BUTTON_SFX].play()
 
-        yield 0.1
+        yield 0.2
         desper.resource_map[STEPS_IN_SFX].play()
 
     def on_pickup(self):
