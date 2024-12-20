@@ -5,9 +5,11 @@ import desper
 DELIVERY_BUTTON_SFX = 'media/button'
 STEPS_IN_SFX = 'media/steps_in'
 VOICE_SFX_FOLDER = 'media/voice'
+PICKUP_SFX = 'media/pickup'
+DROP_SFX = 'media/drop'
 
 
-@desper.event_handler('on_delivery')
+@desper.event_handler('on_delivery', 'on_pickup', 'on_drop')
 class SFXManager:
     """Play sounds based on triggered events."""
     mute = False
@@ -22,6 +24,20 @@ class SFXManager:
 
         yield 0.1
         desper.resource_map[STEPS_IN_SFX].play()
+
+    def on_pickup(self):
+        """Play pickup sound."""
+        if self.mute:
+            return
+
+        desper.resource_map[PICKUP_SFX].play()
+
+    def on_drop(self):
+        """Play drop sound."""
+        if self.mute:
+            return
+
+        desper.resource_map[DROP_SFX].play()
 
 
 @desper.event_handler('on_switch_in')

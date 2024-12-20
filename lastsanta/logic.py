@@ -113,6 +113,8 @@ class ItemDragProcessor(desper.Processor):
         if top_item is None:            # Nothing to grab
             return
 
+        self.world.dispatch('on_pickup')
+
         # Save current item and mouse offset for dragging
         self.dragged = top_item
         self.pickup_position = top_item.get_component(desper.Transform2D).position
@@ -133,6 +135,8 @@ class ItemDragProcessor(desper.Processor):
         top_item = self.find_drag(point)
         if top_item is None:            # Nothing to grab
             return
+
+        self.world.dispatch('on_pickup')
 
         # Save current item and mouse offset for dragging
         top_item = desper.controller(find_root(top_item.entity, top_item.world), top_item.world)
@@ -169,6 +173,7 @@ class ItemDragProcessor(desper.Processor):
                  or dragged_position.x < 0)
 
         if snap:
+            self.world.dispatch('on_drop')
             dragged_transformed.position = self.pickup_position
 
             # Cleanup
@@ -198,6 +203,11 @@ class ItemDragProcessor(desper.Processor):
         if not hooked and self.last_delta.mag > 0.5:
             self.dragged.add_component(physics.Velocity(*(self.last_delta / self.last_dt)
                                                         .limit(MAX_MOUSE_INTERTIA_SPEED)))
+
+        if hooked:
+            self.world.dispatch('on_hook')
+        else:
+            self.world.dispatch('on_drop')
 
         self.dragged = None
         self.offset = Vec2()
