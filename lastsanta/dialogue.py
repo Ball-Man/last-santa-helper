@@ -22,6 +22,7 @@ ERRORS_VAR = 'errors'
 BACK_DIALOGUE_VAR = 'back'
 HP_VAR = 'hp'
 TUTORIAL_VAR = 'tutorial'
+VOICE_VAR = 'voice'
 
 
 class DialogueHandle(desper.Handle[DialogueData]):
@@ -158,3 +159,7 @@ class DialogueMachineTransfomer:
         world.create_entity(physics.MouseToGameSpace())
         world.create_entity(DialogueTriggerOnClick(self.dialogue))
         world.create_entity(self.previous)
+
+        # Sound
+        if self.dialogue[VOICE_VAR]:
+            world.create_entity(sound.VoiceSFXManager())
