@@ -7,9 +7,10 @@ STEPS_IN_SFX = 'media/steps_in'
 VOICE_SFX_FOLDER = 'media/voice'
 PICKUP_SFX = 'media/pickup'
 DROP_SFX = 'media/drop'
+HOOK_SFX = 'media/hook'
 
 
-@desper.event_handler('on_delivery', 'on_pickup', 'on_drop')
+@desper.event_handler('on_delivery', 'on_pickup', 'on_drop', 'on_hook')
 class SFXManager:
     """Play sounds based on triggered events."""
     mute = False
@@ -38,6 +39,13 @@ class SFXManager:
             return
 
         desper.resource_map[DROP_SFX].play()
+
+    def on_hook(self):
+        """Play drop sound."""
+        if self.mute:
+            return
+
+        desper.resource_map[HOOK_SFX].play()
 
 
 @desper.event_handler('on_switch_in')
