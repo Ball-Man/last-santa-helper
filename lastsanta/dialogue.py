@@ -11,6 +11,7 @@ from . import graphics
 from . import game
 from . import gifts
 from . import hotkeys
+from . import sound
 
 LANG_ITA = 'ITA'
 GIFT_NAME_DIALOGUE_VAR = 'gift_name'
@@ -140,6 +141,9 @@ class DialogueWorldTransformer:
                                   multiline=True, anchor_y='bottom',
                                   color=constants.FG_COLOR, font_name=self.font_name,
                                   font_size=self.font_size, batch=main_batch))
+
+        # Sound
+        world.create_entity(sound.SFXManager())
 
 
 class DialogueMachineTransfomer:

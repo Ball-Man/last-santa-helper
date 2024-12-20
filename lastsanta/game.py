@@ -16,6 +16,7 @@ from . import logic
 from . import constants
 from . import physics
 from . import dialogue
+from . import sound
 
 LETTERS_RESOURCE_PATH = 'dial/letters'
 TOYS_RESOURCE_PATH = 'image/toys'
@@ -221,6 +222,9 @@ class MainGameTransformer:
         world.create_entity(physics.MouseToGameSpace())
         # Add self handle as an entity, used later for retrieval
         world.create_entity(handle)
+
+        # Sound
+        world.create_entity(sound.SFXManager())
 
         # Rendering
         world.add_processor(graphics.CameraProcessor())
