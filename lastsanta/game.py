@@ -118,6 +118,7 @@ class TheHandler(desper.Controller):
         # dialogue or whatever.
         yield 2
 
+        self.world.dispatch('on_handler_out')
         yield from self.slider.lerp_to_target(self.slider.start_pos)
 
 
