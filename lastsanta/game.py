@@ -135,6 +135,7 @@ class TheLetter(desper.Controller):
     def slide_in(self, *args):
         """Wait a second and slide in."""
         yield 1
+        self.world.dispatch('on_letter_in')
         yield from self.slider.lerp_to_target(self.slider.target_x)
 
     @desper.coroutine

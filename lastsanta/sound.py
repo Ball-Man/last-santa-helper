@@ -6,7 +6,9 @@ from ddesigner.default_model import ExecuteNode
 
 DELIVERY_BUTTON_SFX = 'media/button'
 PAPER_OUT_SFX = 'media/paper_out'
+PAPER_IN_SFX = 'media/paper_in'
 STEPS_IN_SFX = 'media/steps_in'
+STEPS_OUT_SFX = 'media/steps_out'
 VOICE_SFX_FOLDER = 'media/voice'
 HIT_SFXS = 'media/hits/hit1', 'media/hits/hit2'
 PICKUP_SFX = 'media/pickup'
@@ -21,7 +23,8 @@ def sfx_subscriber(sfx: str, _):
     desper.resource_map[sfx].play()
 
 
-@desper.event_handler('on_delivery', 'on_pickup', 'on_drop', 'on_hook', 'on_bounce')
+@desper.event_handler('on_delivery', 'on_pickup', 'on_drop', 'on_hook', 'on_bounce',
+                      'on_letter_in', 'on_handler_out')
 class SFXManager:
     """Play sounds based on triggered events."""
     mute = False
@@ -63,6 +66,18 @@ class SFXManager:
             return
 
         desper.resource_map[random.choice(HIT_SFXS)].play()
+
+    def on_letter_in(self):
+        if self.mute:
+            return
+
+        desper.resource_map[PAPER_IN_SFX].play()
+
+    def on_handler_out(self):
+        if self.mute:
+            return
+
+        desper.resource_map[STEPS_OUT_SFX].play()
 
 
 @desper.event_handler('on_switch_in')
