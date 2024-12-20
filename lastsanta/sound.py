@@ -1,6 +1,8 @@
 """Handle sound."""
 import random
+
 import desper
+from ddesigner.default_model import ExecuteNode
 
 DELIVERY_BUTTON_SFX = 'media/button'
 STEPS_IN_SFX = 'media/steps_in'
@@ -9,6 +11,13 @@ HIT_SFXS = 'media/hits/hit1', 'media/hits/hit2'
 PICKUP_SFX = 'media/pickup'
 DROP_SFX = 'media/drop'
 HOOK_SFX = 'media/hook'
+
+
+@ExecuteNode.subscriber
+def sfx_subscriber(sfx: str, _):
+    """Interpret all commands as SFX, for simplicity."""
+    # Check for mute?
+    desper.resource_map[sfx].play()
 
 
 @desper.event_handler('on_delivery', 'on_pickup', 'on_drop', 'on_hook', 'on_bounce')
