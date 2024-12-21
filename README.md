@@ -16,6 +16,15 @@ pip install -r requirements.txt
 ```
 Consider using a virtual environment.
 
+## Running
+The game can be run directly after installing the requirements:
+```bash
+# Include -OO to run without debugging
+# On Windows, you may need to replace "python" with "py"
+python -OO main.py
+```
+Alternatively, or in case you want to distribute the game, consider building an executable.
+
 ## Building
 The game can easily be built on Linux and Windows. Apple platforms are in theory compatible, but may require tweaking the resources. Building happens through `cx_freeze`.
 
