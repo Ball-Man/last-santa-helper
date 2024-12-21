@@ -44,3 +44,15 @@ Commands:
 
 ## Code structure overview
 The code architecture follows an ECS-like structure, implemented by the [desper](https://github.com/Ball-Man/desper) package. Graphics capabilities are provided by the [pyglet](https://github.com/pyglet/pyglet) multimedia library. The main storyline has been designed using radmatt's [Dialogue Designer](https://radmatt.itch.io/dialogue-designer). I built a simplified decoder library called [python-ddesigner](https://github.com/Ball-Man/python-ddesigner).
+
+
+## Licenses
+Artworks, entirely made by me, are public domain, in particular:
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/Ball-Man/last-santa-helper/tree/master/resources/image">"Santa Claus's Last Helper"'s artworks</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://www.fmistri.it/">Francesco Mistri</a> is marked with <a href="https://creativecommons.org/publicdomain/zero/1.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC0 1.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/zero.svg?ref=chooser-v1" alt=""></a></p>
+
+
+Sound effects are were found on Freesound, please find the attributions in `sfx_credits.txt`. Check the licenses before redistributing for your own purposes.
+
+Fonts have public-domain/very permissive licenses (soon to be attributed).
+
+Every other piece of data/code in teh repository is under the MIT license (see `LICENSE`)
