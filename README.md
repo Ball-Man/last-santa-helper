@@ -7,6 +7,8 @@ Become one of Santa's helpers, and build gifts for children around the world. Wh
 
 The game is currently **only available in Italian**.
 
+![screenshot of the game](assets/screenshot1.png)
+
 ## Requirements
 The project was developed and tested on Python 3.11 and 3.12. It should be working on any Python version >= 3.10.
 
